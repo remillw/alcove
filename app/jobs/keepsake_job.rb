@@ -23,7 +23,7 @@ class KeepsakeJob < ApplicationJob
     type: "object",
     properties: {
       changes: {
-        type: "array", maxItems: 4,
+        type: "array",
         items: {
           type: "object",
           properties: {
@@ -34,7 +34,7 @@ class KeepsakeJob < ApplicationJob
           required: %w[op key title detail status note], additionalProperties: false
         }
       },
-      suggestions: { type: "array", maxItems: 3, items: { type: "string", description: "a reply the user might send next, under 40 characters, in the user's language" } }
+      suggestions: { type: "array", items: { type: "string", description: "a reply the user might send next, under 40 characters, in the user's language" } }
     },
     required: %w[changes suggestions], additionalProperties: false
   }.freeze
@@ -62,7 +62,7 @@ class KeepsakeJob < ApplicationJob
 
     added = []
     KeepsakeItem.transaction do
-      data["changes"].each do |change|
+      data["changes"].first(4).each do |change|
         key = change["key"].to_s.parameterize.first(60).presence or next
         if change["op"] == "remove"
           conversation.keepsake_items.where(key:).delete_all

@@ -9,12 +9,12 @@ class SummarizeConversationJob < ApplicationJob
     properties: {
       summary: { type: "string", description: "Updated summary of the whole relationship, at most 120 words, third person." },
       facts: {
-        type: "array", maxItems: 5,
+        type: "array",
         items: {
           type: "object",
           properties: {
             fact: { type: "string", description: "One lasting fact about the user, under 20 words." },
-            importance: { type: "integer", minimum: 1, maximum: 3 }
+            importance: { type: "integer", description: "1 (minor) to 3 (core to who they are)" }
           },
           required: %w[fact importance], additionalProperties: false
         }
@@ -44,7 +44,7 @@ class SummarizeConversationJob < ApplicationJob
 
     Conversation.transaction do
       conversation.update!(summary: data["summary"], summarized_until_message_id: messages.last.id)
-      data["facts"].each { conversation.memories.create!(fact: _1["fact"], importance: _1["importance"], source_message: messages.last) }
+      data["facts"].first(5).each { conversation.memories.create!(fact: _1["fact"], importance: _1["importance"].to_i.clamp(1, 3), source_message: messages.last) }
       usage = response.usage
       UsageEvent.create!(user: conversation.user, character: conversation.character, kind: "summary",
         model: conversation.character.model, input_tokens: usage.input_tokens, output_tokens: usage.output_tokens,
