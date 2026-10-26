@@ -81,8 +81,13 @@ module Mcp
       }
     }.freeze
 
+    PERCENTILES = {
+      first_token_ms: [ "percentile_cont(0.5) within group (order by first_token_ms)", "percentile_cont(0.95) within group (order by first_token_ms)" ],
+      latency_ms: [ "percentile_cont(0.5) within group (order by latency_ms)", "percentile_cont(0.95) within group (order by latency_ms)" ]
+    }.freeze
+
     def percentiles(scope, column)
-      p50, p95 = scope.where.not(column => nil).pick(Arel.sql("percentile_cont(0.5) within group (order by #{column})"), Arel.sql("percentile_cont(0.95) within group (order by #{column})"))
+      p50, p95 = scope.where.not(column => nil).pick(*PERCENTILES.fetch(column).map { Arel.sql(_1) })
       { p50: p50&.round, p95: p95&.round }
     end
   end
