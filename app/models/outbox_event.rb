@@ -1,0 +1,2 @@
+class OutboxEvent < ApplicationRecord
+end

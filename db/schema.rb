@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_26_101600) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_26_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -93,6 +93,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_101600) do
     t.index ["conversation_id"], name: "one_active_reply_per_conversation", unique: true, where: "(((role)::text = 'assistant'::text) AND ((status)::text = ANY ((ARRAY['pending'::character varying, 'streaming'::character varying])::text[])))"
     t.check_constraint "role::text = ANY (ARRAY['user'::character varying, 'assistant'::character varying]::text[])", name: "message_role"
     t.check_constraint "status::text = ANY (ARRAY['pending'::character varying, 'streaming'::character varying, 'completed'::character varying, 'failed'::character varying, 'cancelled'::character varying, 'blocked'::character varying]::text[])", name: "message_status"
+  end
+
+  create_table "outbox_events", force: :cascade do |t|
+    t.string "event_type", null: false
+    t.text "payload", null: false
+    t.datetime "created_at", null: false
   end
 
   create_table "reports", force: :cascade do |t|

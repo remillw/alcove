@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Runs on the host (cron, every minute): takes the signed events out of Alcove and posts them to Hermes on loopback.
+set -uo pipefail
+cd "$(dirname "$0")/.."
+docker compose exec -T web bin/rails hermes:drain 2>/dev/null | while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  body=$(jq -r .body <<<"$line"); ts=$(jq -r .timestamp <<<"$line"); sig=$(jq -r .signature <<<"$line"); id=$(jq -r .id <<<"$line")
+  curl -fsS -o /dev/null --max-time 10 http://127.0.0.1:8644/webhooks/alcove \
+    -H "Content-Type: application/json" -H "X-Webhook-Timestamp: $ts" -H "X-Webhook-Signature-V2: $sig" \
+    -H "X-Request-ID: alcove-$id" --data-binary "$body" || echo "$(date -Is) event $id not delivered" >&2
+done
