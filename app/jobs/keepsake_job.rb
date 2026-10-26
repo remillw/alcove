@@ -34,7 +34,7 @@ class KeepsakeJob < ApplicationJob
           required: %w[op key title detail status note], additionalProperties: false
         }
       },
-      suggestions: { type: "array", items: { type: "string", description: "a reply the user might send next, under 40 characters, in the user's language" } }
+      suggestions: { type: "array", items: { type: "string" } }
     },
     required: %w[changes suggestions], additionalProperties: false
   }.freeze
@@ -55,7 +55,9 @@ class KeepsakeJob < ApplicationJob
       output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
       system_: "You maintain #{character.name}'s #{character.keepsake_name.downcase} for one user. #{guide} " \
                "Only record what the latest exchange actually established. No change is a fine answer. " \
-               "Suggestions: three short, natural next messages from the user, different from each other.",
+               "Suggestions: three things the user might naturally say next to #{character.first_name} in the conversation " \
+               "(a reaction, a question, a move), in the user's language, under 40 characters each, different from each other. " \
+               "Never app commands like 'show my list'.",
       messages: [ { role: "user", content: "Current items:\n#{kept.presence || '(empty)'}\n\nLatest exchange:\n#{transcript}" } ]
     )
     data = JSON.parse(response.content.find { _1.type == :text }.text)
