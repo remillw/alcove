@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_26_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_26_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -36,6 +36,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_130000) do
     t.jsonb "starters", default: [], null: false
     t.jsonb "returns", default: {}, null: false
     t.jsonb "showcase", default: [], null: false
+    t.jsonb "translations", default: {}, null: false
     t.index ["published", "position"], name: "index_characters_on_published_and_position"
     t.index ["slug"], name: "index_characters_on_slug", unique: true
   end
@@ -174,6 +175,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_130000) do
     t.datetime "registered_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "locale", default: "en", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true, where: "(email_address IS NOT NULL)"
     t.check_constraint "credit_balance >= 0", name: "credit_balance_not_negative"
   end

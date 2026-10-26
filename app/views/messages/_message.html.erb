@@ -5,7 +5,7 @@
     <span class="visually-hidden" role="status"><%= message.character.first_name %> is typing</span>
     <% if message.part_of_id.nil? %><%= button_to "Stop", cancel_message_path(message), method: :patch, class: "msg__stop", form: { data: { turbo_stream: true } } %><% end %>
   <% else %>
-    <% if message.content.present? %><p class="msg__text"><%= message.content %></p><% end %>
+    <% if message.content.present? %><p class="msg__text"><%= message_html(message.content) %></p><% end %>
     <% if message.failed? %>
       <p class="msg__aside"><%= message.character.first_name %> lost the thread<%= " halfway" if message.content.present? %>. Your credit was returned; send it again.</p>
     <% elsif message.cancelled? %>

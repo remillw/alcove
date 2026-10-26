@@ -1,31 +1,152 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  site:
+    title: "Alcove · Characters who remember you"
+    description: "Talk with original AI characters who remember you: a librarian, a cook, an astronomer, a detective, a French café owner and a companion for your day."
+    home: "Alcove, home"
+    nav: "Main"
+    conversations: "Conversations"
+    account: "Account"
+    sign_up: "Sign up"
+    log_in: "Log in"
+    terms: "Terms"
+    privacy: "Privacy"
+    legal: "Legal notice"
+    footer_note: "Every character on Alcove is an AI. They can be wrong, and they can't give medical, legal or financial advice. For adults (18+)."
+    language: "Language"
+    switch_to: "Français"
+    credits_title: "Credits: one per reply"
+    credits_left: "credits left"
+    ai_character: "AI character"
+  characters:
+    around: "around"
+    index:
+      eyebrow: "Six original characters · free to try"
+      title_html: "Someone who <em>remembers</em> you."
+      lead: "A librarian who knows your taste, a cook who works with what's left in your fridge, a detective with a case for you. They keep what matters, and pick up where you left off."
+      glimpse: "A glimpse of a conversation"
+      talk_to: "Talk to %{name}"
+      continue_with: "Continue with %{name}"
+      about: "About %{name}"
+      meet: "Meet them"
+      how: "How Alcove works"
+      how_remember_title: "They remember"
+      how_remember: "Each character keeps something for you: a reading pile, a case file, your French corrections. You can read it all, and make them forget anything."
+      how_themselves_title: "They stay themselves"
+      how_themselves: "Written personalities, voices and limits. No content for adults, no guilt trips when you leave."
+      how_pricing_title: "Clear pricing"
+      how_pricing: "One credit per reply. Your first replies are free, and members get credits topped up every day."
+      gate_title: "Before you start"
+      gate_text: "Alcove's characters are AI, not real people. They can be wrong, and they can't give medical, legal or financial advice."
+      gate_check: "I'm 18 or older, and I understand I'm talking to AI characters."
+      gate_start: "Start"
+      gate_cancel: "Not now"
+    show:
+      continue: "Continue the conversation"
+      adult_html: "I'm 18 or older, and I understand %{name} is an AI character, not a real person."
+      start: "Start talking to %{name}"
+      free: "Your first %{count} replies are free, no account needed."
+      who: "Who they are"
+      how_talk: "How they talk"
+      wont: "What they won't do"
+  keepsakes:
+    reading_pile: { name: "Reading pile", short: "Pile", verb: "added to your pile", empty: "Books June suggests land here." }
+    recipe_cards: { name: "Recipe cards", short: "Recipes", verb: "wrote a recipe card", empty: "Theo's recipes for you land here." }
+    sky_log: { name: "Sky log", short: "Sky log", verb: "noted in your sky log", empty: "What you find in the sky lands here." }
+    case_file: { name: "Case file", short: "Case", verb: "added to the case file", empty: "Clues and suspects land here as Ada reveals them." }
+    corrections: { name: "Corrections notebook", short: "Notes", verb: "noted a correction", empty: "Margot's corrections land here, so you can review them." }
+    week: { name: "Your week", short: "Week", verb: "pinned to your week", empty: "Sol pins the moments of your week here." }
+  conversations:
+    show:
+      back: "All characters"
+      panel_label: "%{keepsake} and notebook"
+      notice: "You're talking with an AI character, not a real person. It can be wrong, and it can't give medical, legal or financial advice."
+      knows: "What %{name} knows about you"
+      forget: "Forget"
+      forget_confirm: "Forget this?"
+      nothing_yet: "Nothing yet. %{name} starts keeping notes after a few exchanges, and you can make them forget anything."
+      delete: "Delete this conversation"
+      delete_confirm: "Delete the whole conversation with %{name}, and everything they keep about you?"
+    index:
+      title: "Your conversations"
+      ago: "%{time} ago"
+      none_html: "No conversations yet. %{link}."
+      meet: "Meet the characters"
+    deleted: "Conversation and memories deleted."
+    confirm_age: "Please confirm you're 18 or older to start."
+  messages:
+    message:
+      typing: "%{name} is typing"
+      stop: "Stop"
+      lost: "%{name} lost the thread. Your credit was returned; send it again."
+      lost_halfway: "%{name} lost the thread halfway. Your credit was returned; send it again."
+      stopped: "(stopped)"
+      more: "More options"
+      report: "Report this reply"
+      report_confirm: "Report this reply? We'll review it."
+      reported: "Thanks, we'll look at it."
+    composer:
+      label: "Message to %{name}"
+      placeholder: "Write to %{name}…"
+      send: "Send"
+      guest_title: "Keep talking to %{name}"
+      guest_text: "Your free replies are used up. Create an account to keep this conversation and get %{count} credits, then a daily top-up."
+      guest_cta: "Create a free account"
+      member_title: "You're out of credits for today"
+      member_text: "Your balance is topped up to %{count} credits every day."
+    too_fast: "You're typing faster than anyone can read. Take a breath and try again in a moment."
+    resting: "Alcove is resting for today. Please come back tomorrow."
+    busy: "%{name} is still answering. Wait for the reply, or stop it."
+    too_long: "Messages can be up to %{count} characters."
+  registrations:
+    new:
+      title: "Keep your characters"
+      lead: "An account keeps your conversations and what the characters remember about you. You get %{credits} credits, then a free top-up to %{floor} every day."
+      name: "What should the characters call you?"
+      name_hint: "Optional. A first name or a nickname."
+      email: "Email"
+      password: "Password"
+      password_hint: "At least 10 characters."
+      adult: "I'm 18 or older."
+      terms_html: "I accept the %{terms} and I've read the %{privacy}."
+      terms_link: "terms"
+      privacy_link: "privacy policy"
+      submit: "Create my account"
+      have_account: "Already have an account?"
+    must_be_adult: "You need to be 18 or older to use Alcove."
+    welcome: "Welcome to Alcove. %{count} credits are yours."
+    too_many: "Too many attempts. Try again later."
+  sessions:
+    new:
+      title: "Welcome back"
+      email: "Email"
+      password: "Password"
+      submit: "Log in"
+      new_here_html: "New here? %{link}. Forgot your password? Write to %{email}."
+      create: "Create an account"
+    wrong: "That email and password don't match."
+    too_many: "Too many attempts. Try again later."
+  accounts:
+    show:
+      credits: "Credits"
+      credits_text: "One credit per reply. Topped up to %{count} every day for free."
+      date: "Date"
+      movement: "Movement"
+      kinds:
+        grant: "Free credits"
+        reserve: "Reply"
+        release: "Refund (reply failed)"
+        purchase: "Purchase"
+        adjustment: "Adjustment"
+      account: "Account"
+      no_name: "No name set"
+      download: "Download my data"
+      log_out: "Log out"
+      delete_title: "Delete account"
+      delete_text: "Deletes your account, every conversation and everything the characters remember. This can't be undone."
+      delete: "Delete my account"
+      delete_confirm: "Delete your account and all your conversations for good?"
+    deleted: "Your account and all your conversations have been deleted."
+  safety:
+    distress: "I'm really glad you told me, and I'm worried about you. I'm an AI and I can't be the help you need right now, but people can. If you're in danger, call your local emergency number now. In France, call or text 3114 (free, 24/7). In the US, call or text 988. In the UK and Ireland, Samaritans: 116 123. Elsewhere, findahelpline.com lists services by country. Please reach out to someone near you too. I'm still here if you want to keep talking."
+    refusal: "That's not something I'll take part in. Let's talk about something else."
+  pick_character: "Pick a character to start a conversation."
