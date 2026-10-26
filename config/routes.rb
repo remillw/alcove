@@ -33,5 +33,8 @@ Rails.application.routes.draw do
   get "terms" => "pages#terms"
   get "privacy" => "pages#privacy"
 
+  # read-only Model Context Protocol endpoint for operations agents (Hermes)
+  post "mcp" => "mcp#create"
+
   get "up" => "rails/health#show", as: :rails_health_check
 end

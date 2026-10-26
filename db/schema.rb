@@ -83,6 +83,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_090200) do
     t.index ["source_message_id"], name: "index_keepsake_items_on_source_message_id"
   end
 
+  create_table "mcp_tokens", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "digest", null: false
+    t.datetime "last_used_at"
+    t.datetime "revoked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["digest"], name: "index_mcp_tokens_on_digest", unique: true
+  end
+
   create_table "memories", force: :cascade do |t|
     t.bigint "conversation_id", null: false
     t.text "fact", null: false
