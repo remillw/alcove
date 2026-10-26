@@ -2,7 +2,8 @@
 # Action Cable). A reply can come as two or three short messages: the model puts a line with "~" between them,
 # and each part becomes its own message (part_of_id points to the first), still one credit.
 # Invariants: one reply in progress per conversation (unique index), one credit charged per reply and refunded
-# exactly once if nothing came back (idempotency keys), never more than DEADLINE seconds.
+# exactly once if the reply fails or nothing came back (idempotency keys), never more than DEADLINE seconds.
+# A stop asked by the user keeps the credit.
 class GenerateReplyJob < ApplicationJob
   include ActionView::RecordIdentifier
 
@@ -18,7 +19,6 @@ class GenerateReplyJob < ApplicationJob
     in_locale_of(Message.find_by(id: reply_id)&.user) { stream_reply(reply_id) }
   end
 
-  # the rescue clauses below belong to this method
   def stream_reply(reply_id)
     @reply = Message.find_by(id: reply_id)
     return unless @reply && Message.where(id: @reply.id, status: "pending").update_all(status: "streaming", updated_at: Time.current) == 1
@@ -57,6 +57,9 @@ class GenerateReplyJob < ApplicationJob
   rescue Anthropic::Errors::APIStatusError => e
     Rails.error.report(e, context: { reply_id: })
     fail_reply("api_error")
+  rescue StandardError => e # a lost database connection, a broadcast error: refund now, don't wait for RecoverStuckRepliesJob
+    Rails.error.report(e, context: { reply_id: })
+    fail_reply("unexpected")
   end
 
   private

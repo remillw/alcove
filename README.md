@@ -3,11 +3,11 @@
 [![CI](https://github.com/remillw/alcove/actions/workflows/ci.yml/badge.svg)](https://github.com/remillw/alcove/actions/workflows/ci.yml) · **Live:** [alcove.victoire-digital.fr](https://alcove.victoire-digital.fr) · English and French
 
 > **Highlights**
-> - Rails 8.1 on Ruby 4.0, Hotwire streaming (Turbo Streams over Solid Cable), Solid Queue, PostgreSQL + pgvector. No Redis, no Node build.
+> - Rails 8.1 on Ruby 4.0, Hotwire streaming (Turbo Streams over Solid Cable), Solid Queue, PostgreSQL (pgvector ready). No Redis, no Node build.
 > - An append-only **credit ledger**: never negative under 10 concurrent tabs, never charged or refunded twice (idempotency keys, tested with threads).
 > - **Payment orchestration** behind one provider interface (sandbox + Stripe), signed and replay-safe webhooks, partial refunds, subscription cancel/resume, nightly reconciliation.
 > - **Prompts tested like code**: 60 behaviour evals graded by a stronger model, prompt version recorded on every reply, CI fails on an un-evaluated prompt change or any safety failure. Simulated users found and fixed what unit tests can't.
-> - **Measured**, not guessed: 200 simultaneous users, 338 replies/min with 50 stream threads; the load test found a real bug (stranded replies) now fixed. 151 tests, Brakeman clean.
+> - **Measured**, not guessed: 200 simultaneous users, 338 replies/min with 50 stream threads (infrastructure only, with a simulated model stream); the load test found a real bug (stranded replies) now fixed. 153 tests, Brakeman clean.
 
 ![Alcove on a phone: the home page, a case file conversation with Ada, and the keepsake drawer](docs/img/mobile.png)
 
@@ -16,6 +16,8 @@
 Replies stream word by word, sometimes as two or three short messages, like a person texting. Each character keeps something for you that fills itself as you talk (June's reading pile, Ada's case file with clues and suspects, Theo's recipe cards, Margot's French corrections), plus what they know about you, which you can read and make them forget. They have a presence (what they're doing at this hour), welcome you back with a line that picks up where you left off, and offer reply suggestions so you never face an empty box. Every reply costs one credit from an append-only ledger.
 
 Live: https://alcove.victoire-digital.fr · Built by [Rémi Bouvant](https://github.com/remillw) (Victoire Digital, Marseille).
+
+**How it was built.** I designed Alcove and wrote it with Claude Code, Anthropic's coding agent, which I direct and review: the architecture, the invariants and the trade-offs below are my decisions, every change was read before it was merged, and each invariant is pinned by a test. The commit history is not squashed. It is a side project with no real users yet, live so it can be tried.
 
 ## Stack
 
@@ -128,7 +130,7 @@ CSRF protection is off for the webhook endpoint only (a provider has no session;
 
 - **Credits are reserved before the call, refunded on failure.** Nobody is ever served on credit, and the race between tabs is settled before money is spent. The real cost (`cost_micros`, integers) is tracked separately for margins.
 - **Guests are real users.** A visitor gets a guest account on their first message (10 free replies, age confirmed). Signing up fills in the same row, so conversations and memories carry over with no merge logic.
-- **Memory without vectors, for now.** Every 16 messages a background job folds the conversation into a summary and up to 5 facts, with structured output (JSON schema). The prompt gets the 15 most important facts. The `embedding vector(1024)` column and pgvector are in place for semantic recall later; today the bottleneck is streaming and credits, not retrieval.
+- **Memory: full text first, vectors when they pay off.** Every 16 messages a background job folds the conversation into a summary and up to 5 facts, with structured output (JSON schema). `Recall` brings back the most important and the most relevant facts with Postgres full text; the pgvector path (Voyage embeddings, HNSW) is written and switches on with a key, but hasn't been measured yet (see Memory recall).
 - **Prompt layout for caching.** Platform rules + character sheet come first and are marked `cache_control`: identical for every user of a character. Memory follows in a `<memory>` block the model is told to treat as data, never instructions.
 - **Safety in layers.** A narrow pre-check answers a crisis at once with real helplines (no model call, no credit), and refuses clearly forbidden requests. A platform rules block, which character sheets can't override, comes next: the character never claims to be human, no sexual content, steps out of role for distress, never guilt-trips. The model's own safeguards come last. Users can report any reply. The AI notice is permanent (EU AI Act, article 50). 18+ only.
 - **Cost guard.** `DAILY_BUDGET_USD` is a circuit breaker on the day's real spend; rate limits per user on messages, per IP on auth.
@@ -196,11 +198,11 @@ What it taught us:
 
 ## Not done yet (honestly)
 
-- Semantic memory recall (embeddings + HNSW index).
-- Payments: cancelling a subscription from Alcove (today the provider's portal), partial refunds, a customer portal link, tax.
-- A second-pass classifier on replies, graded sanctions, a human review queue for reports.
+- Real users and real money: Stripe runs in test mode, the live site uses the sandbox provider. The launch checklist is in [docs/LAUNCH.md](docs/LAUNCH.md).
+- Semantic recall measured with embeddings (the code is there, the measurement isn't).
+- Payments: a customer portal link, tax.
+- A second-pass classifier on replies (today's pre-check is a narrow pattern list), graded sanctions, a human review queue for reports.
 - User-created characters.
-- An MCP server so an agent (Hermes) can read aggregated usage and suggest character improvements, with a human approving every change.
 
 ## Licence
 

@@ -38,6 +38,16 @@ class GenerateReplyJobTest < ActiveJob::TestCase
     assert_equal 1, CreditEntry.where(kind: "release", message: @reply).count
   end
 
+  test "an unexpected error is reported and refunds the credit at once, without waiting for the recovery job" do
+    @llm.error_after = [ 1, ActiveRecord::ConnectionNotEstablished.new("connection lost") ]
+    GenerateReplyJob.perform_now(@reply.id)
+
+    @reply.reload
+    assert_equal "failed", @reply.status
+    assert_equal "unexpected", @reply.error_code
+    assert_equal 5, users(:member).reload.credit_balance
+  end
+
   test "a reply already taken by another worker is not written twice" do
     Message.where(id: @reply.id).update_all(status: "streaming")
     GenerateReplyJob.perform_now(@reply.id)
