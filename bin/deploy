@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Deploy on the server (run from /opt/alcove): pull, build the image once, recreate web and jobs.
+set -euo pipefail
+git pull --ff-only
+docker compose build web
+docker compose up -d --remove-orphans
+docker compose ps --format "{{.Service}} {{.Status}}"
