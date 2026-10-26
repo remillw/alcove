@@ -1,0 +1,41 @@
+en:
+  passwords:
+    sent: "If that email belongs to an Alcove account, a link to choose a new password is on its way."
+    updated: "Password changed. Please log in with the new one."
+    invalid_link: "That link is invalid or has expired. Ask for a new one."
+    mismatch: "The two passwords don't match."
+    too_many: "Too many requests. Try again later."
+    new:
+      title: "Forgot your password?"
+      intro: "Enter the email of your account and we will send you a link to choose a new password."
+      email: "Email"
+      submit: "Send the link"
+      back: "Back to log in"
+    edit:
+      title: "Choose a new password"
+      password: "New password (10 characters or more)"
+      confirmation: "Repeat the new password"
+      submit: "Change the password"
+  sessions:
+    new:
+      new_here_html: "New here? %{link}. Forgot your password? %{reset}."
+      reset: "Reset it"
+  passwords_mailer:
+    reset:
+      subject: "Reset your Alcove password"
+      intro: "Someone asked to reset the password of your Alcove account. To choose a new one, follow this link."
+      button: "Choose a new password"
+      expiry:
+        one: "The link works for %{count} minute, and only once."
+        other: "The link works for %{count} minutes, and only once."
+      ignore: "If it wasn't you, ignore this email: your password stays as it is."
+  welcome_mailer:
+    welcome:
+      subject: "Welcome to Alcove"
+      hello: "Welcome to Alcove."
+      hello_name: "Welcome to Alcove, %{name}."
+      body:
+        one: "Your account is ready, and %{count} credit is yours."
+        other: "Your account is ready, and %{count} credits are yours."
+      continue: "Pick up your latest conversation:"
+      start: "Meet someone to talk to:"

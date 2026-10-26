@@ -13,6 +13,6 @@
       </div>
       <%= f.button t(".submit"), class: "btn btn--primary" %>
     <% end %>
-    <p class="muted"><%= t(".new_here_html", link: link_to(t(".create"), new_registration_path), email: mail_to("contact@victoire-digital.fr")) %></p>
+    <p class="muted"><%= t(".new_here_html", link: link_to(t(".create"), new_registration_path), reset: link_to(t(".reset"), new_password_path)) %></p>
   </section>
 </div>

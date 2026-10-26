@@ -155,12 +155,19 @@ What it taught us:
 - A stream mostly waits on the network, so `llm` threads are cheap (`LLM_THREADS`); **the database is the limit**. With Solid Queue, Solid Cable and Solid Cache on one Postgres, a worker thread can hold a connection to each of the four databases: size `max_connections` for threads x 4, or put PgBouncer (transaction mode) in front. At this app's scale today, 10 threads are plenty; the next step is more threads plus a pooler, then a separate Postgres for queue and cable, then Redis for Action Cable.
 - A worker that dies mid-stream used to leave the reply "streaming" forever, and the unique index then blocked the conversation. `RecoverStuckRepliesJob` (every minute) now fails and refunds a reply stuck for 3 minutes while streaming or 15 minutes in the queue.
 
+## Email: password reset and welcome
+
+- "Forgot your password?" (`/passwords/new`) uses Rails 8's signed reset token from `has_secure_password`: it expires after 30 minutes (`User::RESET_TTL`), works once (it is tied to the current password), and a successful change closes all the user's sessions. The answer is the same whether or not the email exists, the request is rate limited (5 per hour per IP), and only registered members (not guests) are mailed.
+- A short welcome email follows sign-up. Both emails are bilingual (the user's `locale`), HTML plus text, and sent with `deliver_later`.
+- Production reads `SMTP_ADDRESS`, `SMTP_PORT` (587), `SMTP_USERNAME`, `SMTP_PASSWORD` and `MAIL_FROM` (default `Alcove <hello@victoire-digital.fr>`); links use `APP_HOST`. **Without `SMTP_ADDRESS` nothing crashes and nothing is sent: the whole email is written to the Rails log** (reset link included, so the log is sensitive) and users see the usual page.
+- Development writes mails to `tmp/mails`; previews are at `/rails/mailers`.
+
 ## Not done yet (honestly)
 
 - Semantic memory recall (embeddings + HNSW index).
 - Payments: cancelling a subscription from Alcove (today the provider's portal), partial refunds, a customer portal link, tax.
 - A second-pass classifier on replies, graded sanctions, a human review queue for reports.
-- Password reset by email, user-created characters.
+- User-created characters.
 - An MCP server so an agent (Hermes) can read aggregated usage and suggest character improvements, with a human approving every change.
 
 ## Licence

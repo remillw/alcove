@@ -1,0 +1,6 @@
+<%= @name.present? ? t(".hello_name", name: @name) : t(".hello") %>
+
+<%= t(".body", count: User::SIGNUP_CREDITS) %>
+
+<%= @continuing ? t(".continue") : t(".start") %>
+<%= @url %>

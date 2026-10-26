@@ -1,8 +1,10 @@
 class User < ApplicationRecord
   GUEST_CREDITS = 10
   SIGNUP_CREDITS = 30
+  RESET_TTL = 30.minutes
 
-  has_secure_password validations: false
+  # reset links live RESET_TTL (signed, tied to the current password: changing it kills any older link)
+  has_secure_password validations: false, reset_token: { expires_in: RESET_TTL }
   has_many :sessions, dependent: :destroy
   has_many :conversations, dependent: :destroy
   has_many :credit_entries, dependent: :delete_all
@@ -14,6 +16,9 @@ class User < ApplicationRecord
   validates :email_address, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }, if: :registered?
   validates :password, length: { minimum: 10 }, allow_nil: true, if: :registered?
   validates :password_digest, presence: true, if: :registered?
+
+  # members only: guests have no email, so nobody to write to
+  scope :registered, -> { where.not(registered_at: nil) }
 
   def self.create_guest!
     transaction do

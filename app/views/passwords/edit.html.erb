@@ -1,0 +1,20 @@
+<% content_for :title, t(".title") %>
+<div class="stage stage--narrow">
+  <section class="panel">
+    <h1><%= t(".title") %></h1>
+    <% if @errors&.any? %>
+      <ul class="flash flash--alert" role="alert"><% @errors.each do |message| %><li><%= message %></li><% end %></ul>
+    <% end %>
+    <%= form_with url: password_path(params[:token]), method: :patch, class: "form" do |f| %>
+      <div class="field">
+        <%= f.label :password, t(".password"), class: "field__label" %>
+        <%= f.password_field :password, class: "input", required: true, autofocus: true, autocomplete: "new-password", minlength: 10, maxlength: 72 %>
+      </div>
+      <div class="field">
+        <%= f.label :password_confirmation, t(".confirmation"), class: "field__label" %>
+        <%= f.password_field :password_confirmation, class: "input", required: true, autocomplete: "new-password", minlength: 10, maxlength: 72 %>
+      </div>
+      <%= f.button t(".submit"), class: "btn btn--primary" %>
+    <% end %>
+  </section>
+</div>
