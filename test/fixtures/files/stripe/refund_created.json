@@ -1,0 +1,19 @@
+{
+  "id": "evt_1RefundCreated",
+  "object": "event",
+  "api_version": "2025-09-30.clover",
+  "created": 1793000100,
+  "type": "refund.created",
+  "livemode": false,
+  "data": {
+    "object": {
+      "id": "re_3Abc",
+      "object": "refund",
+      "payment_intent": "pi_3Abc",
+      "charge": "ch_3Abc",
+      "amount": 499,
+      "currency": "eur",
+      "status": "succeeded"
+    }
+  }
+}

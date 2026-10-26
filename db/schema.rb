@@ -153,6 +153,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_100000) do
     t.datetime "paid_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "refunded_cents", default: 0, null: false
+    t.integer "credits_refunded", default: 0, null: false
     t.index ["created_at"], name: "index_payments_pending_on_created_at", where: "((status)::text = 'pending'::text)"
     t.index ["provider", "external_id"], name: "index_payments_on_provider_and_external_id", unique: true, where: "(external_id IS NOT NULL)"
     t.index ["subscription_id"], name: "index_payments_on_subscription_id"
@@ -192,6 +194,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_100000) do
     t.datetime "canceled_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "cancel_at_period_end", default: false, null: false
     t.index ["provider", "external_id"], name: "index_subscriptions_on_provider_and_external_id", unique: true
     t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end

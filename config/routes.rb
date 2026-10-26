@@ -24,6 +24,8 @@ Rails.application.routes.draw do
 
   scope module: :payments do
     resources :checkouts, only: :create
+    # POST cancels the subscription at the end of the period, DELETE takes the cancellation back
+    resource :cancellation, path: "subscription/cancellation", only: %i[create destroy]
     post "webhooks/:provider" => "webhooks#create", as: :webhook
   end
   # the sandbox provider's hosted page (404 unless PAYMENTS_PROVIDER=sandbox)

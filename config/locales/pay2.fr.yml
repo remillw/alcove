@@ -1,0 +1,17 @@
+fr:
+  payments:
+    subscription:
+      ends: "Votre abonnement %{plan} se termine le %{date}. Vous le gardez jusque-là, il ne sera pas renouvelé."
+      cancel: Annuler l'abonnement
+      cancel_confirm: "Arrêter votre abonnement à la fin de la période en cours ? Vous gardez l'offre et ses crédits jusque-là."
+      resume: Reprendre l'abonnement
+    cancellations:
+      create:
+        requested: Annulation demandée. Votre abonnement reste actif jusqu'à la fin de la période et ne sera pas renouvelé.
+        already: Votre abonnement est déjà programmé pour se terminer.
+        unavailable: Nous n'avons pas pu joindre le prestataire de paiement. Rien n'a été modifié. Veuillez réessayer dans un instant.
+      destroy:
+        resumed: Votre abonnement sera renouvelé comme d'habitude.
+        too_late: Cet abonnement est terminé, il ne peut plus être repris. Vous pouvez vous réabonner ci-dessous.
+        unavailable: Nous n'avons pas pu joindre le prestataire de paiement. Rien n'a été modifié. Veuillez réessayer dans un instant.
+      none: Vous n'avez pas d'abonnement actif.

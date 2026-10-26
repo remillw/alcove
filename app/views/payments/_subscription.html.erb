@@ -1,0 +1,11 @@
+<%# locals: (subscription:) %>
+<%# the state shown is our mirror of the provider's: a cancellation appears when its webhook has been processed %>
+<% plan = t("payments.offers.products.#{subscription.product_key}.title") %>
+<% date = payments_date(subscription.current_period_end) %>
+<% if subscription.cancel_scheduled? %>
+  <p class="muted"><%= t(".ends", plan:, date:) %></p>
+  <%= button_to t(".resume"), cancellation_path, method: :delete, class: "btn" %>
+<% else %>
+  <p class="muted"><%= t("accounts.show.subscribed", plan:, date:) %></p>
+  <%= button_to t(".cancel"), cancellation_path, class: "btn btn--quiet", form: { data: { turbo_confirm: t(".cancel_confirm") } } %>
+<% end %>

@@ -14,6 +14,7 @@ module Payments
       when :payment_refunded then payment_refunded(event)
       when :subscription_paid then subscription_paid(event)
       when :subscription_past_due then subscription_past_due(event)
+      when :subscription_updated then subscription_updated(event)
       when :subscription_canceled then subscription_canceled(event)
       end
     end
@@ -52,7 +53,8 @@ module Payments
         payment = Payment.find_by(provider: event.provider, external_id: event.external_id)
         payment ||= first if first.status.in?(PAYABLE_FROM)
         payment ||= first.dup.tap { _1.token = nil }
-        payment.update!(status: :paid, external_id: event.external_id, subscription:, amount_cents: event.amount_cents,
+        # a replayed invoice must not undo a refund: only a payment not yet settled becomes paid
+        payment.update!(status: payment.settled? ? payment.status : :paid, external_id: event.external_id, subscription:, amount_cents: event.amount_cents,
           currency: event.currency, paid_at: payment.paid_at || Time.current)
 
         Credits.post!(user: first.user, amount: payment.credits, kind: :purchase,
@@ -69,21 +71,52 @@ module Payments
       end
     end
 
+    # the provider's view of "stop at the end of the period": scheduled or taken back. A canceled subscription is final.
+    # An update about a subscription we haven't recorded yet is normal right after checkout (it can beat the first
+    # invoice): nothing to mirror, so only a scheduled cancellation, which we should know about, is reported.
+    def self.subscription_updated(event)
+      subscription = Subscription.find_by(provider: event.provider, external_id: event.subscription_id)
+      return (unknown(event) if event.cancel_at_period_end) unless subscription
+
+      subscription.with_lock { subscription.update!(cancel_at_period_end: event.cancel_at_period_end == true) unless subscription.canceled? }
+    end
+
     def self.subscription_canceled(event)
       subscription = Subscription.find_by(provider: event.provider, external_id: event.subscription_id) or return unknown(event)
       subscription.with_lock { subscription.update!(status: :canceled, canceled_at: Time.current) unless subscription.canceled? }
     end
 
-    # only a full refund takes the credits back (partial refunds are left to a human)
+    # Each refund is its own event (refund_id) and takes back the credits of the money it returned: the payment's credits
+    # pro rata (Payment#credits_for, rounded half up on the cumulative total). Guarantees:
+    #   * a refund seen twice (another event for the same refund, a replay) counts once: refund ids are kept on the
+    #     payment and are also the ledger key;
+    #   * refunds never add up to more than was charged, so never to more credits than were bought: an excess is cut
+    #     to what is left and reported;
+    #   * the balance never goes below zero (clamp): credits already spent are not recovered, the shortfall is written
+    #     in the ledger entry. credits_refunded tracks the nominal credits so the pro rata stays exact regardless.
+    # paid -> partially_refunded -> refunded (once everything is returned).
     def self.payment_refunded(event)
       payment = Payment.find_by(provider: event.provider, external_id: event.external_id) or return unknown(event)
-      payment.with_lock do
-        next unless payment.paid? && event.amount_cents >= payment.amount_cents
+      return unknown(event) if event.refund_id.blank? || event.amount_cents.to_i <= 0
 
-        payment.refunded!
-        # clamp: credits already spent can't be clawed back below zero; what is missing is recorded in the entry
-        Credits.post!(user: payment.user, amount: -payment.credits, kind: :adjustment, clamp: true,
-          key: "refund:#{payment.provider}:#{payment.external_id}", metadata: { reason: "refund", payment_id: payment.id })
+      payment.with_lock do
+        refunds = payment.metadata.fetch("refunds", {})
+        next unless payment.settled? && !refunds.key?(event.refund_id)
+
+        cents = [ event.amount_cents, payment.refundable_cents ].min
+        if cents < event.amount_cents
+          Rails.error.report(Error.new("Payment #{payment.id}: refund #{event.refund_id} of #{event.amount_cents} exceeds the #{payment.refundable_cents} left, counted as #{cents}"))
+        end
+        next if cents.zero?
+
+        refunded = payment.refunded_cents + cents
+        credits = payment.credits_for(refunded)
+        owed = credits - payment.credits_refunded # what this refund adds, 0 when it is too small to be worth a credit
+        payment.update!(refunded_cents: refunded, credits_refunded: credits, status: refunded == payment.amount_cents ? :refunded : :partially_refunded,
+          metadata: payment.metadata.merge("refunds" => refunds.merge(event.refund_id => cents)))
+
+        Credits.post!(user: payment.user, amount: -owed, kind: :adjustment, clamp: true,
+          key: "refund:#{payment.provider}:#{event.refund_id}", metadata: { reason: "refund", payment_id: payment.id, refund_cents: cents }) if owed.positive?
       end
     end
 

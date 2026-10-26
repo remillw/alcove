@@ -23,7 +23,7 @@
   <section class="panel">
     <p class="eyebrow"><%= t(".buy_credits") %></p>
     <% if (subscription = current_user.active_subscription) %>
-      <p class="muted"><%= t(".subscribed", plan: t("payments.offers.products.#{subscription.product_key}.title"), date: payments_date(subscription.current_period_end)) %></p>
+      <%= render "payments/subscription", subscription: %>
     <% end %>
     <%= render "payments/offers", user: current_user %>
   </section>

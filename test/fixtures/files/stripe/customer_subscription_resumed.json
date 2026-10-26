@@ -1,0 +1,9 @@
+{
+  "id": "evt_1SubResume",
+  "object": "event",
+  "api_version": "2025-09-30.clover",
+  "created": 1793000200,
+  "type": "customer.subscription.updated",
+  "livemode": false,
+  "data": { "object": { "id": "sub_1Abc", "object": "subscription", "status": "active", "cancel_at_period_end": false } }
+}

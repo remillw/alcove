@@ -43,13 +43,20 @@ module PaymentsTestHelper
   # stands in for ::Stripe::StripeClient: records what we send, answers what the test says
   class FakeStripeClient
     Session = Struct.new(:id, :url, :hash, keyword_init: true) { def to_hash = hash }
-    attr_reader :created
+    attr_reader :created, :updated
 
-    def initialize(retrieved: {}) = (@retrieved = retrieved)
+    def initialize(retrieved: {}, failing: false) = (@retrieved = retrieved; @failing = failing)
 
     def v1 = self
     def checkout = self
     def sessions = self
+    def subscriptions = self
+
+    # subscriptions.update(id, params): records it, or fails like Stripe does when the subscription is gone
+    def update(id, params, _opts = {})
+      raise ::Stripe::InvalidRequestError.new("No such subscription: #{id}", "id") if @failing
+      (@updated ||= []) << [ id, params ]
+    end
 
     def create(params, opts)
       @created = [ params, opts ]

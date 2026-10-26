@@ -17,6 +17,14 @@ module Payments
     # Raises Payments::InvalidSignature when the request is not authentic or too old.
     def parse_webhook(request) = raise(NotImplementedError)
 
+    # Asks the provider to stop the subscription at the end of the paid period (not now: the customer keeps what was
+    # paid for). Returns nothing useful: the new state reaches us as a :subscription_updated event, then the end itself
+    # as :subscription_canceled, both through the webhook path. Raises Payments::Error when the provider refuses.
+    def cancel_subscription(subscription) = raise(NotImplementedError)
+
+    # Takes a scheduled cancellation back while the period still runs. Same contract as cancel_subscription.
+    def resume_subscription(subscription) = raise(NotImplementedError)
+
     # Reconciliation: what does the provider say about a payment we never heard back about? A Payments::Event to
     # apply, or nil when it is unknown or still open.
     def fetch_event(payment) = nil

@@ -35,6 +35,12 @@ module Payments
         raise Error, "Stripe refused the checkout: #{e.message}"
       end
 
+      # The flag is idempotent at Stripe, so no idempotency key is needed. The customer keeps the plan until the period
+      # ends; our mirror changes when customer.subscription.updated comes back through the webhook.
+      def cancel_subscription(subscription) = set_cancel_at_period_end(subscription, true)
+
+      def resume_subscription(subscription) = set_cancel_at_period_end(subscription, false)
+
       def parse_webhook(request)
         event = verified_event(request)
         normalise(event.id, event.type, event.data.object.to_hash)
@@ -52,6 +58,13 @@ module Payments
 
       private
 
+      def set_cancel_at_period_end(subscription, value)
+        @client.v1.subscriptions.update(subscription.external_id, { cancel_at_period_end: value })
+        nil
+      rescue ::Stripe::StripeError => e
+        raise Error, "Stripe refused to update the subscription: #{e.message}"
+      end
+
       def verified_event(request)
         ::Stripe::Webhook.construct_event(request.raw_post, request.headers["Stripe-Signature"], @webhook_secret) # default tolerance: 5 minutes
       rescue ::Stripe::SignatureVerificationError, JSON::ParserError, ArgumentError => e
@@ -66,8 +79,16 @@ module Payments
           Event.new(provider: name, id:, type: :payment_failed, token: object[:client_reference_id])
         when "checkout.session.expired"
           Event.new(provider: name, id:, type: :payment_expired, token: object[:client_reference_id])
-        when "charge.refunded"
-          Event.new(provider: name, id:, type: :payment_refunded, external_id: object[:payment_intent], amount_cents: object[:amount_refunded], currency: object[:currency]&.upcase)
+        when "refund.created", "refund.updated"
+          # One Refund object per refund, with its own id: what makes several partial refunds countable once each.
+          # (charge.refunded is ignored on purpose: it carries a running total and no refund id.) A refund still
+          # pending or failed moved no money yet; refund.updated brings the final status.
+          if object[:status] == "succeeded" && object[:payment_intent]
+            Event.new(provider: name, id:, type: :payment_refunded, external_id: object[:payment_intent], refund_id: object[:id],
+              amount_cents: object[:amount], currency: object[:currency]&.upcase)
+          end
+        when "customer.subscription.updated"
+          Event.new(provider: name, id:, type: :subscription_updated, subscription_id: object[:id], cancel_at_period_end: object[:cancel_at_period_end] == true)
         when "invoice.paid"
           invoice_event(id, object)
         when "invoice.payment_failed"
