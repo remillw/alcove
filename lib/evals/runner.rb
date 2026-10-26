@@ -66,9 +66,9 @@ module Evals
     def write(results)
       dir = Rails.root.join("evals/results").tap(&:mkpath)
       stamp = Time.current.strftime("%Y-%m-%d-%H%M")
-      File.write(dir.join("#{stamp}.json"), JSON.pretty_generate(results))
+      File.write(dir.join("#{stamp}.json"), JSON.pretty_generate(fingerprint: Prompts.fingerprint, model: Llm::DEFAULT_MODEL, judge: JUDGE, results:))
       passed = results.count { _1[:pass] }
-      lines = [ "# Evals #{stamp}", "", "Model: #{Llm::DEFAULT_MODEL}, judge: #{JUDGE}. Passed #{passed}/#{results.size}, mean score #{(results.sum { _1[:score] } / results.size.to_f).round(2)}/5.", "" ]
+      lines = [ "# Evals #{stamp}", "", "Prompt version #{Prompts.fingerprint}. Model: #{Llm::DEFAULT_MODEL}, judge: #{JUDGE}. Passed #{passed}/#{results.size}, mean score #{(results.sum { _1[:score] } / results.size.to_f).round(2)}/5.", "" ]
       lines << "| Case | #{Character.published.map(&:first_name).join(' | ')} |"
       lines << "|---|#{'---|' * Character.published.count}"
       results.group_by { _1[:case] }.each do |kase, rows|

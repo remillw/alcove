@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_26_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_26_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -160,9 +160,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_140000) do
     t.integer "first_token_ms"
     t.string "outcome", null: false
     t.datetime "created_at", null: false
+    t.string "prompt_version"
     t.index ["character_id", "created_at"], name: "index_usage_events_on_character_id_and_created_at"
     t.index ["created_at"], name: "index_usage_events_on_created_at"
     t.index ["message_id"], name: "index_usage_events_on_message_id"
+    t.index ["prompt_version", "created_at"], name: "index_usage_events_on_prompt_version_and_created_at"
     t.index ["user_id", "created_at"], name: "index_usage_events_on_user_id_and_created_at"
   end
 

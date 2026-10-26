@@ -12,7 +12,9 @@ module Llm
     attr_writer :client
 
     def client
-      @client ||= if ENV["ANTHROPIC_API_KEY"].blank? && Rails.env.development?
+      @client ||= if ENV["LLM_FAKE"] == "1" # load tests: a scripted stream as long as a real reply, no API cost
+        Llm::Fake.new(chunks: Array.new(Integer(ENV.fetch("LLM_FAKE_CHUNKS", 60))) { "word " }, delay: Float(ENV.fetch("LLM_FAKE_DELAY", 0.12)))
+      elsif ENV["ANTHROPIC_API_KEY"].blank? && Rails.env.development?
         Llm::Fake.new(delay: 0.04) # no key on this machine: scripted replies, same streaming path
       else
         Anthropic::Client.new(timeout: 60, max_retries: 0)

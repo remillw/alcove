@@ -1,0 +1,31 @@
+# A throwaway stack for load tests: same image, its own database, scripted LLM (no API cost), no public port.
+#   docker compose -f bench/compose.yaml -p alcove-bench up -d
+#   docker compose -f bench/compose.yaml -p alcove-bench exec jobs bin/rails runner bench/load.rb 300
+#   docker compose -f bench/compose.yaml -p alcove-bench down -v
+name: alcove-bench
+
+services:
+  jobs:
+    image: alcove:latest
+    command: ["bash", "-c", "bin/rails db:prepare db:seed && ./bin/jobs"]
+    environment:
+      RAILS_ENV: production
+      SECRET_KEY_BASE: bench-only-not-a-secret
+      DB_HOST: db
+      DB_PORT: "5432"
+      ALCOVE_DATABASE_PASSWORD: bench
+      LLM_FAKE: "1"
+      APP_HOST: bench.local
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: alcove
+      POSTGRES_PASSWORD: bench
+      POSTGRES_DB: alcove_production
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alcove"]
+      interval: 3s
+      retries: 20

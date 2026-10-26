@@ -128,7 +128,7 @@ class GenerateReplyJob < ApplicationJob
   def record_usage(input:, output:, cache_read:, cache_write:, cost:, outcome:)
     UsageEvent.create!(user: @reply.user, message: @reply, character: @reply.character, kind: "reply", model: @reply.model,
       input_tokens: input, output_tokens: output, cache_read_tokens: cache_read, cache_write_tokens: cache_write,
-      cost_micros: cost, outcome:, latency_ms: ((clock - @started) * 1000).round,
+      cost_micros: cost, outcome:, prompt_version: Prompts.fingerprint, latency_ms: ((clock - @started) * 1000).round,
       first_token_ms: @first_token && (@first_token * 1000).round)
   end
 
