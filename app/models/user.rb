@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  GUEST_CREDITS = 3
+  GUEST_CREDITS = 10
   SIGNUP_CREDITS = 30
 
   has_secure_password validations: false

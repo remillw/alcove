@@ -1,12 +1,25 @@
 # Alcove
 
-**Characters who remember you.** Alcove is a small, production-minded Rails 8 app where adults chat with original AI characters: a librarian, a bistro cook, an amateur astronomer, a harbour inspector who runs mysteries, a café owner who helps you practise French, and an everyday companion. Replies stream word by word, each character keeps a notebook about you that you can read and edit, and every reply costs one credit from an append-only ledger.
+**Characters who remember you.** Alcove is a small, production-minded Rails 8 app where adults chat with original AI characters: a librarian, a bistro cook, an amateur astronomer, a harbour inspector who runs mysteries, a café owner who helps you practise French, and an everyday companion.
+
+Replies stream word by word, sometimes as two or three short messages, like a person texting. Each character keeps something for you that fills itself as you talk (June's reading pile, Ada's case file with clues and suspects, Theo's recipe cards, Margot's French corrections), plus what they know about you, which you can read and make them forget. They have a presence (what they're doing at this hour), welcome you back with a line that picks up where you left off, and offer reply suggestions so you never face an empty box. Every reply costs one credit from an append-only ledger.
 
 Live: https://alcove.victoire-digital.fr · Built by [Rémi Bouvant](https://github.com/remillw) (Victoire Digital, Marseille).
 
 ## Stack
 
-Ruby 4.0 · Rails 8.1 · PostgreSQL 17 with pgvector · Hotwire (Turbo Streams, Stimulus) · Solid Queue, Solid Cache, Solid Cable · Propshaft + importmap (no Node build) · Anthropic Claude through the official `anthropic` gem · Minitest · Docker Compose behind HAProxy/nginx on a single VPS.
+Ruby 4.0 · Rails 8.1 · PostgreSQL 17 with pgvector · Hotwire (Turbo Streams, Stimulus) · Solid Queue, Solid Cache, Solid Cable · Propshaft + importmap (no Node build) · Anthropic Claude through the official `anthropic` gem (Sonnet 5.5 with thinking off for replies, about a second to the first word; Haiku 5.5 for background extraction) · Minitest · Docker Compose behind HAProxy/nginx on a single VPS.
+
+## Background work after each reply
+
+| Job | Model | What it does |
+|---|---|---|
+| `GenerateReplyJob` | Sonnet 5.5 | streams the reply; a line with `~` splits it into separate messages (still one credit) |
+| `KeepsakeJob` | Haiku 5.5, structured output | updates the character's keepsake (upsert/remove by stable key) and writes three reply suggestions |
+| `SummarizeConversationJob` | Sonnet 5.5, structured output | every 16 messages: rolling summary + lasting facts |
+| `DailyDigestJob` | none | evening numbers sent to Hermes, the operations agent on the same server |
+
+Hermes only listens on the server's loopback, so the app never calls it directly: events go to an outbox table and `bin/hermes-relay` (cron on the host) posts them, signed with HMAC-SHA256 over `timestamp.body`. Only counts and ids leave the app, never conversation text.
 
 ## How a reply works
 
