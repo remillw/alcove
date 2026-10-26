@@ -1,0 +1,19 @@
+<% content_for :title, "Conversations" %>
+<div class="stage stage--narrow">
+  <h1 class="page-title">Your conversations</h1>
+  <% if @conversations.any? %>
+    <ul class="list">
+      <% @conversations.each do |conversation| %>
+        <li class="list__item">
+          <%= render "shared/avatar", character: conversation.character, size: "sm" %>
+          <div>
+            <%= link_to conversation.character.name, conversation_path(conversation) %>
+            <p><%= conversation.character.role %><% if conversation.last_message_at %> · <%= time_ago_in_words(conversation.last_message_at) %> ago<% end %></p>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="muted">No conversations yet. <%= link_to "Meet the characters", root_path %>.</p>
+  <% end %>
+</div>

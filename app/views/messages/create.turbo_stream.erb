@@ -1,0 +1,6 @@
+<%= turbo_stream.append "log", partial: "messages/message", locals: { message: @message } %>
+<%= turbo_stream.append "log", partial: "messages/message", locals: { message: @reply } if @reply %>
+<%= turbo_stream.replace "credits", partial: "shared/credits", locals: { user: current_user.reload } %>
+<% if current_user.credit_balance.zero? %>
+  <%= turbo_stream.replace "composer", partial: "messages/composer", locals: { conversation: @conversation, error: nil } %>
+<% end %>

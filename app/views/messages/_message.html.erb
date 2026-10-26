@@ -1,0 +1,23 @@
+<% name = message.assistant? ? message.character.first_name : "You" %>
+<article id="<%= dom_id(message) %>" class="line <%= message.assistant? ? "line--them" : "line--me" %> <%= "line--safety" if message.status == "blocked" %>">
+  <h3 class="line__who"><%= name %></h3>
+  <% if message.active? %>
+    <p class="line__text"><span id="<%= dom_id(message, :body) %>" class="line__body" aria-busy="true"><%= message.content -%></span></p>
+    <p class="typing" role="status"><%= name %> is finding the words<span class="typing__dots"></span></p>
+    <div class="line__meta">
+      <%= button_to "Stop", cancel_message_path(message), method: :patch, class: "line__report", form: { data: { turbo_stream: true } } %>
+    </div>
+  <% else %>
+    <% if message.content.present? %><p class="line__text"><%= message.content %></p><% end %>
+    <% if message.failed? %>
+      <p class="line__aside line__aside--fail"><%= name %> lost the thread<%= " halfway" if message.content.present? %>. Your credit was returned; send your message again.</p>
+    <% elsif message.cancelled? %>
+      <p class="line__aside">(stopped)</p>
+    <% elsif message.assistant? && message.status == "completed" && message.cost_micros %>
+      <div class="line__meta">
+        <%= button_to "Report", report_message_path(message), class: "line__report", id: dom_id(message, :report),
+              form: { data: { turbo_confirm: "Report this reply? We'll review it." } } %>
+      </div>
+    <% end %>
+  <% end %>
+</article>

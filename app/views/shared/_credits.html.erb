@@ -1,0 +1,6 @@
+<%= link_to (user.registered? ? account_path : new_registration_path), id: "credits",
+      class: ["credits", ("credits--low" if user.credit_balance <= 3)],
+      title: "Credits: one per reply" do %>
+  <span class="credits__dot" aria-hidden="true"></span>
+  <span><%= user.credit_balance %><span class="visually-hidden"> credits left</span></span>
+<% end %>

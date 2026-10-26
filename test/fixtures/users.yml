@@ -1,0 +1,13 @@
+<% password_digest = BCrypt::Password.create("password12") %>
+
+member:
+  email_address: member@example.com
+  password_digest: <%= password_digest %>
+  display_name: Sam
+  credit_balance: 5
+  registered_at: <%= 2.days.ago.to_fs(:db) %>
+  adult_confirmed_at: <%= 2.days.ago.to_fs(:db) %>
+
+guest:
+  credit_balance: 1
+  adult_confirmed_at: <%= 1.hour.ago.to_fs(:db) %>

@@ -1,0 +1,30 @@
+<% user = conversation.user %>
+<div id="composer" class="composer">
+  <% if error.present? && error != :no_credits %><p class="composer__error" role="alert"><%= error %></p><% end %>
+  <% if user.credit_balance.zero? || error == :no_credits %>
+    <div class="paywall">
+      <% if user.guest? %>
+        <h2>Keep talking to <%= conversation.character.first_name %></h2>
+        <p>Your free replies are used up. Create an account to keep this conversation and get <%= User::SIGNUP_CREDITS %> credits, then a daily top-up.</p>
+        <%= link_to "Create a free account", new_registration_path, class: "btn btn--primary" %>
+      <% else %>
+        <h2>You're out of credits for today</h2>
+        <p>Your balance is topped up to <%= DailyCredits::DAILY_FLOOR %> credits every day. Paid plans are coming soon.</p>
+      <% end %>
+    </div>
+  <% else %>
+    <%= form_with url: conversation_messages_path(conversation), class: "composer__form", data: { controller: "composer", action: "turbo:submit-end->composer#reset" } do |f| %>
+      <%= hidden_field_tag :nonce, "", data: { composer_target: "nonce" } %>
+      <div class="composer__box">
+        <label for="content" class="visually-hidden">Message to <%= conversation.character.first_name %></label>
+        <%= text_area_tag :content, nil, rows: 1, maxlength: Message::MAX_LENGTH, required: true, autocomplete: "off",
+              placeholder: "Write to #{conversation.character.first_name}…",
+              data: { composer_target: "input", action: "keydown->composer#submitOnEnter" } %>
+        <button type="submit" class="btn btn--primary composer__send" aria-label="Send" data-composer-target="send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        </button>
+      </div>
+      <p class="composer__foot"><span>1 credit per reply</span><span class="composer__keys">Enter to send · Shift+Enter for a new line</span></p>
+    <% end %>
+  <% end %>
+</div>
