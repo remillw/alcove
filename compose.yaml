@@ -30,6 +30,9 @@ services:
     <<: *app
     pull_policy: never # same image as web, built once
     command: ["./bin/jobs"]
+    depends_on:
+      web:
+        condition: service_healthy # web runs db:prepare (queue and cable tables included) first
 
   db:
     image: pgvector/pgvector:pg17
