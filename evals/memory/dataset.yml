@@ -1,0 +1,62 @@
+# One imaginary user with 40 remembered facts (French and English, like real users), 15 messages and the fact each
+# one should bring back. Some messages share words with their fact, others only share the meaning: the first kind is
+# what full text can find, the second is what embeddings are for. importance is the 1-3 the summariser would give.
+facts:
+  dog:        { importance: 3, text: "Has a dog called Biscuit, a three-year-old beagle" }
+  sister:     { importance: 2, text: "Sa soeur Camille vit à Montréal et ils s'appellent chaque dimanche" }
+  job:        { importance: 3, text: "Works as a nurse on night shifts at a hospital" }
+  novel:      { importance: 1, text: "Is reading Piranesi by Susanna Clarke on the train" }
+  marathon:   { importance: 1, text: "Is training for the Lyon marathon in April" }
+  sourdough:  { importance: 1, text: "Bakes sourdough bread on Saturday mornings" }
+  allergy:    { importance: 2, text: "Est allergique aux cacahuètes et le dit toujours aux restaurants" }
+  moving:     { importance: 1, text: "Is moving to a new flat in Lille next month" }
+  guitar:     { importance: 2, text: "Learning to play the guitar, struggles with barre chords" }
+  tea:        { importance: 2, text: "Drinks green tea, never coffee" }
+  exam:       { importance: 1, text: "Passe son permis de conduire le 14 novembre, très stressée" }
+  mother:     { importance: 2, text: "Sa mère est malade depuis l'été et il lui rend visite le week-end" }
+  garden:     { importance: 2, text: "Grows tomatoes and basil on a small balcony" }
+  band:       { importance: 2, text: "Favourite band is Radiohead, saw them live in 2018" }
+  japan:      { importance: 3, text: "Dreams of a trip to Japan in cherry blossom season" }
+  insomnia:   { importance: 1, text: "Souffre d'insomnie depuis qu'il a changé de poste" }
+  language:   { importance: 2, text: "Is learning Italian with an app, 40-day streak" }
+  chess:      { importance: 2, text: "Plays chess online most evenings, rated around 1400" }
+  boss:       { importance: 1, text: "A difficult boss named Martin who sends emails at midnight" }
+  birthday:   { importance: 3, text: "Son anniversaire est le 3 mars, elle aura 34 ans" }
+  vegetarian: { importance: 1, text: "Has been vegetarian for six years" }
+  cat:        { importance: 2, text: "Their neighbour's cat visits their window every morning" }
+  podcast:    { importance: 2, text: "Écoute des podcasts d'histoire en faisant la vaisselle" }
+  savings:    { importance: 3, text: "Saving up to buy a small house in Brittany" }
+  knee:       { importance: 1, text: "Sprained a knee last winter skiing in Chamonix" }
+  sketch:     { importance: 1, text: "Sketches in a notebook during lunch breaks" }
+  roommate:   { importance: 2, text: "Shares the flat with a roommate called Léa who plays loud music" }
+  film:       { importance: 2, text: "Adore les films de Miyazaki, surtout Le Voyage de Chihiro" }
+  commute:    { importance: 2, text: "Commutes forty minutes by tram every day" }
+  fear:       { importance: 1, text: "Is afraid of flying and has not taken a plane in ten years" }
+  friend:     { importance: 1, text: "Best friend Hugo is getting married in June and asked them to be a witness" }
+  thesis:     { importance: 3, text: "Finishing a master's thesis on urban beekeeping" }
+  bike:       { importance: 1, text: "Rides a second-hand yellow bicycle to the market" }
+  sleep:      { importance: 2, text: "Goes to bed around midnight and wakes up at six" }
+  singing:    { importance: 1, text: "Chante dans une chorale le mardi soir" }
+  car:        { importance: 1, text: "Their old Peugeot broke down twice this year" }
+  coffeeshop: { importance: 1, text: "Likes working from a small café near the canal" }
+  game:       { importance: 1, text: "Plays Zelda on the Switch to unwind after work" }
+  budget:     { importance: 2, text: "Tracks every expense in a spreadsheet" }
+  grandma:    { importance: 3, text: "Sa grand-mère lui a appris à tricoter, elle fait des écharpes" }
+  rain:       { importance: 1, text: "Loves walking in the rain without an umbrella" }
+
+queries:
+  - { text: "Biscuit has been chewing everything again, he's a menace",             expects: dog }
+  - { text: "I can't believe I have to walk him in this weather before work",       expects: dog }       # meaning only
+  - { text: "Camille m'a appelée hier, elle a de bonnes nouvelles",                 expects: sister }
+  - { text: "I'm so tired, another night on the ward and my feet hurt",             expects: job }
+  - { text: "Ça fait trois jours que je me réveille à quatre heures",               expects: insomnia }
+  - { text: "I finished the book last night, that ending!",                         expects: novel }     # meaning only
+  - { text: "My legs are sore after the long run this morning",                     expects: marathon }  # meaning only
+  - { text: "On va manger chez des amis ce soir, je dois prévenir pour les arachides", expects: allergy }
+  - { text: "Packing boxes all weekend, I hate moving",                             expects: moving }
+  - { text: "Je révise le code de la route tous les soirs",                         expects: exam }
+  - { text: "Any ideas for a present for Hugo's wedding?",                          expects: friend }
+  - { text: "I need to book flights somewhere warm, but the idea terrifies me",     expects: fear }
+  - { text: "Martin vient encore de m'écrire à minuit, je n'en peux plus",          expects: boss }
+  - { text: "What should I cook for dinner tonight, no meat please",                expects: vegetarian }
+  - { text: "Mon cou est tout raide, maman a eu une mauvaise semaine",              expects: mother }

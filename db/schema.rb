@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_27_090200) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_27_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -91,7 +91,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_090200) do
     t.vector "embedding", limit: 1024
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.virtual "fact_tsv", type: :tsvector, as: "to_tsvector('simple'::regconfig, fact)", stored: true
     t.index ["conversation_id", "importance", "id"], name: "index_memories_on_conversation_id_and_importance_and_id"
+    t.index ["embedding"], name: "index_memories_on_embedding_hnsw", opclass: :vector_cosine_ops, using: :hnsw
+    t.index ["fact_tsv"], name: "index_memories_on_fact_tsv", using: :gin
     t.index ["source_message_id"], name: "index_memories_on_source_message_id"
   end
 
