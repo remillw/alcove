@@ -3,7 +3,6 @@
 name: alcove
 
 x-app: &app
-  build: .
   image: alcove:latest
   restart: unless-stopped
   env_file: .env
@@ -17,6 +16,7 @@ x-app: &app
 services:
   web:
     <<: *app
+    build: .
     ports:
       - "127.0.0.1:4047:80"
     healthcheck:
@@ -28,6 +28,7 @@ services:
   # Solid Queue: replies (queue "llm", long-running streams) and summaries, separate from web requests
   jobs:
     <<: *app
+    pull_policy: never # same image as web, built once
     command: ["./bin/jobs"]
 
   db:
