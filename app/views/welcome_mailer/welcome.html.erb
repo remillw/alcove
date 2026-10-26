@@ -1,0 +1,5 @@
+<div style="font-family: Georgia, serif; color: #2a2522; max-width: 32rem; line-height: 1.5;">
+  <p><%= @name.present? ? t(".hello_name", name: @name) : t(".hello") %></p>
+  <p><%= t(".body", count: User::SIGNUP_CREDITS) %></p>
+  <p><%= link_to (@continuing ? t(".continue") : t(".start")), @url, style: "color: #2a2522;" %></p>
+</div>

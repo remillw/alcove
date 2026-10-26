@@ -1,0 +1,5 @@
+<div style="font-family: Georgia, serif; color: #2a2522; max-width: 32rem; line-height: 1.5;">
+  <p><%= t(".intro") %></p>
+  <p><%= link_to t(".button"), @url, style: "display: inline-block; padding: .6rem 1.2rem; background: #2a2522; color: #fff; text-decoration: none; border-radius: 4px;" %></p>
+  <p style="color: #6b625c; font-size: .9rem;"><%= t(".expiry", count: @minutes) %> <%= t(".ignore") %></p>
+</div>

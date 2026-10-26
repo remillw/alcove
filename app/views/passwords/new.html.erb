@@ -1,0 +1,15 @@
+<% content_for :title, t(".title") %>
+<div class="stage stage--narrow">
+  <section class="panel">
+    <h1><%= t(".title") %></h1>
+    <p class="muted"><%= t(".intro") %></p>
+    <%= form_with url: passwords_path, class: "form" do |f| %>
+      <div class="field">
+        <%= f.label :email_address, t(".email"), class: "field__label" %>
+        <%= f.email_field :email_address, class: "input", required: true, autofocus: true, autocomplete: "username", value: params[:email_address] %>
+      </div>
+      <%= f.button t(".submit"), class: "btn btn--primary" %>
+    <% end %>
+    <p class="muted"><%= link_to t(".back"), new_session_path %></p>
+  </section>
+</div>

@@ -16,6 +16,7 @@ class RegistrationsController < ApplicationController
       redirect_to account_path
     elsif user.persisted? ? register(user) : register(User.create!)
       start_new_session_for(@registered) unless resume_session
+      WelcomeMailer.welcome(@registered).deliver_later
       redirect_to session.delete(:return_to_after_authenticating) || after_signup_path, notice: t("registrations.welcome", count: User::SIGNUP_CREDITS)
     else
       @errors = @registered.errors.full_messages

@@ -59,14 +59,22 @@ Rails.application.configure do
   config.hosts = [ ENV.fetch("APP_HOST", "alcove.victoire-digital.fr") ]
   config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 
-  # Specify outgoing SMTP server. Remember to add smtp/* credentials via bin/rails credentials:edit.
-  # config.action_mailer.smtp_settings = {
-  #   user_name: Rails.application.credentials.dig(:smtp, :user_name),
-  #   password: Rails.application.credentials.dig(:smtp, :password),
-  #   address: "smtp.example.com",
-  #   port: 587,
-  #   authentication: :plain
-  # }
+  # Outgoing mail is configured by SMTP_* variables. Without SMTP_ADDRESS the app still runs: the :log
+  # delivery method (config/initializers/mail.rb) writes each email to the log instead of sending it.
+  if ENV["SMTP_ADDRESS"].present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address: ENV["SMTP_ADDRESS"],
+      port: ENV.fetch("SMTP_PORT", 587).to_i,
+      user_name: ENV["SMTP_USERNAME"].presence,
+      password: ENV["SMTP_PASSWORD"].presence,
+      authentication: ENV["SMTP_USERNAME"].present? ? :plain : nil,
+      enable_starttls_auto: true
+    }.compact
+    config.action_mailer.raise_delivery_errors = true # a failed send is retried by the job, not swallowed
+  else
+    config.action_mailer.delivery_method = :log
+  end
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

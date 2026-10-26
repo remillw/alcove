@@ -1,0 +1,41 @@
+fr:
+  passwords:
+    sent: "Si cet email correspond à un compte Alcove, un lien pour choisir un nouveau mot de passe vient de partir."
+    updated: "Mot de passe modifié. Connectez-vous avec le nouveau."
+    invalid_link: "Ce lien n'est pas valide ou a expiré. Demandez-en un nouveau."
+    mismatch: "Les deux mots de passe ne correspondent pas."
+    too_many: "Trop de demandes. Réessayez plus tard."
+    new:
+      title: "Mot de passe oublié ?"
+      intro: "Saisissez l'email de votre compte : nous vous enverrons un lien pour choisir un nouveau mot de passe."
+      email: "Email"
+      submit: "Envoyer le lien"
+      back: "Retour à la connexion"
+    edit:
+      title: "Choisissez un nouveau mot de passe"
+      password: "Nouveau mot de passe (10 caractères minimum)"
+      confirmation: "Répétez le nouveau mot de passe"
+      submit: "Changer le mot de passe"
+  sessions:
+    new:
+      new_here_html: "Nouveau ici ? %{link}. Mot de passe oublié ? %{reset}."
+      reset: "Réinitialisez-le"
+  passwords_mailer:
+    reset:
+      subject: "Réinitialisez votre mot de passe Alcove"
+      intro: "Quelqu'un a demandé à réinitialiser le mot de passe de votre compte Alcove. Pour en choisir un nouveau, suivez ce lien."
+      button: "Choisir un nouveau mot de passe"
+      expiry:
+        one: "Le lien est valable %{count} minute, et une seule fois."
+        other: "Le lien est valable %{count} minutes, et une seule fois."
+      ignore: "Si ce n'est pas vous, ignorez cet email : votre mot de passe reste inchangé."
+  welcome_mailer:
+    welcome:
+      subject: "Bienvenue sur Alcove"
+      hello: "Bienvenue sur Alcove."
+      hello_name: "Bienvenue sur Alcove, %{name}."
+      body:
+        one: "Votre compte est prêt, et %{count} crédit est à vous."
+        other: "Votre compte est prêt, et %{count} crédits sont à vous."
+      continue: "Reprenez votre dernière conversation :"
+      start: "Allez à la rencontre de quelqu'un :"
