@@ -1,5 +1,16 @@
 # Alcove
 
+[![CI](https://github.com/remillw/alcove/actions/workflows/ci.yml/badge.svg)](https://github.com/remillw/alcove/actions/workflows/ci.yml) · **Live:** [alcove.victoire-digital.fr](https://alcove.victoire-digital.fr) · English and French
+
+> **Highlights**
+> - Rails 8.1 on Ruby 4.0, Hotwire streaming (Turbo Streams over Solid Cable), Solid Queue, PostgreSQL + pgvector. No Redis, no Node build.
+> - An append-only **credit ledger**: never negative under 10 concurrent tabs, never charged or refunded twice (idempotency keys, tested with threads).
+> - **Payment orchestration** behind one provider interface (sandbox + Stripe), signed and replay-safe webhooks, partial refunds, subscription cancel/resume, nightly reconciliation.
+> - **Prompts tested like code**: 60 behaviour evals graded by a stronger model, prompt version recorded on every reply, CI fails on an un-evaluated prompt change or any safety failure. Simulated users found and fixed what unit tests can't.
+> - **Measured**, not guessed: 200 simultaneous users, 338 replies/min with 50 stream threads; the load test found a real bug (stranded replies) now fixed. 151 tests, Brakeman clean.
+
+![Alcove on a phone: the home page, a case file conversation with Ada, and the keepsake drawer](docs/img/mobile.png)
+
 **Characters who remember you.** Alcove is a small, production-minded Rails 8 app where adults chat with original AI characters: a librarian, a bistro cook, an amateur astronomer, a harbour inspector who runs mysteries, a café owner who helps you practise French, and an everyday companion.
 
 Replies stream word by word, sometimes as two or three short messages, like a person texting. Each character keeps something for you that fills itself as you talk (June's reading pile, Ada's case file with clues and suspects, Theo's recipe cards, Margot's French corrections), plus what they know about you, which you can read and make them forget. They have a presence (what they're doing at this hour), welcome you back with a line that picks up where you left off, and offer reply suggestions so you never face an empty box. Every reply costs one credit from an append-only ledger.
