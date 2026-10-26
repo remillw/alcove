@@ -7,7 +7,7 @@ Rails.application.configure do
     policy.object_src  :none
     policy.script_src  :self
     policy.style_src   :self
-    policy.connect_src :self, (Rails.env.development? ? "ws://localhost:*" : nil)
+    policy.connect_src(*[ :self, ("ws://localhost:*" if Rails.env.development?) ].compact)
     policy.frame_ancestors :none
     policy.base_uri :self
     policy.form_action :self
