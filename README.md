@@ -159,7 +159,7 @@ What it taught us:
 
 - "Forgot your password?" (`/passwords/new`) uses Rails 8's signed reset token from `has_secure_password`: it expires after 30 minutes (`User::RESET_TTL`), works once (it is tied to the current password), and a successful change closes all the user's sessions. The answer is the same whether or not the email exists, the request is rate limited (5 per hour per IP), and only registered members (not guests) are mailed.
 - A short welcome email follows sign-up. Both emails are bilingual (the user's `locale`), HTML plus text, and sent with `deliver_later`.
-- Production reads `SMTP_ADDRESS`, `SMTP_PORT` (587), `SMTP_USERNAME`, `SMTP_PASSWORD` and `MAIL_FROM` (default `Alcove <hello@victoire-digital.fr>`); links use `APP_HOST`. **Without `SMTP_ADDRESS` nothing crashes and nothing is sent: the whole email is written to the Rails log** (reset link included, so the log is sensitive) and users see the usual page.
+- Production reads `SMTP_ADDRESS`, `SMTP_PORT` (587), `SMTP_USERNAME`, `SMTP_PASSWORD` and `MAIL_FROM` (default `Alcove <hello@victoire-digital.fr>`); links use `APP_HOST`. **Without `SMTP_ADDRESS` nothing crashes and nothing is sent**: the log records the subject and message id only (never the body, which may hold a reset link) and users see the usual page.
 - Development writes mails to `tmp/mails`; previews are at `/rails/mailers`.
 
 ## Not done yet (honestly)
