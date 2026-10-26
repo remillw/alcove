@@ -1,9 +1,12 @@
 # The single door to the Anthropic API: replaced by a fake in tests (Llm.client = FakeLlm.new).
 module Llm
-  # Claude Opus 5.5 by default (thinking always on; "low" effort suits short chat replies).
-  # LLM_MODEL switches every character to another model, e.g. claude-haiku-5-5 for a much lower cost per message.
-  DEFAULT_MODEL = ENV.fetch("LLM_MODEL", "claude-opus-5-5")
+  # Claude Sonnet 5.5 with thinking off: the first word in about a second, which a conversation needs (Opus 5.5
+  # always thinks first: ~6 s before the first word in production on 26/10). LLM_MODEL switches every character.
+  DEFAULT_MODEL = ENV.fetch("LLM_MODEL", "claude-sonnet-5-5")
   EFFORT = ENV.fetch("LLM_EFFORT", "low")
+
+  # Sonnet 5.5 turns thinking off with "between_tools" (accepted at effort high or below); Opus 5.5 can't turn it off
+  def self.thinking_for(model) = model.start_with?("claude-sonnet-5-5") ? { thinking: { type: "between_tools" } } : {}
 
   class << self
     attr_writer :client

@@ -37,6 +37,7 @@ class ContextBuilder
       model: @character.model,
       max_tokens: MAX_TOKENS,
       output_config: { effort: Llm::EFFORT },
+      **Llm.thinking_for(@character.model),
       system_: system_blocks,
       messages: recent_messages
     }
