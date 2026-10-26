@@ -21,7 +21,7 @@ class GenerateReplyJob < ApplicationJob
   # the rescue clauses below belong to this method
   def stream_reply(reply_id)
     @reply = Message.find_by(id: reply_id)
-    return unless @reply && Message.where(id: @reply.id, status: "pending").update_all(status: "streaming") == 1
+    return unless @reply && Message.where(id: @reply.id, status: "pending").update_all(status: "streaming", updated_at: Time.current) == 1
 
     @reply.reload
     @started = clock

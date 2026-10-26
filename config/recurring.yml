@@ -2,6 +2,9 @@ production:
   clean_up_guests:
     class: CleanUpGuestsJob
     schedule: every day at 4am
+  recover_stuck_replies:
+    class: RecoverStuckRepliesJob
+    schedule: every minute
   daily_digest:
     class: DailyDigestJob
     schedule: every day at 9pm

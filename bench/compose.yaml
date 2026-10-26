@@ -23,6 +23,9 @@ services:
         condition: service_healthy
   db:
     image: pgvector/pgvector:pg17
+    # each worker thread may hold a connection to every database (primary, queue, cable, cache):
+    # max_connections must cover (LLM_THREADS + other threads) x 4, or put PgBouncer in front
+    command: ["postgres", "-c", "max_connections=${PG_MAX_CONNECTIONS:-100}"]
     environment:
       POSTGRES_USER: alcove
       POSTGRES_PASSWORD: bench
