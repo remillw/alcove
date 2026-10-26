@@ -1,0 +1,42 @@
+en:
+  payments:
+    price: "€%{amount}"
+    decimal_separator: "."
+    date_format: "%Y-%m-%d"
+    offers:
+      sign_up: Create an account to buy credits
+      per_month: " / month"
+      products:
+        pack_50:
+          title: 50 credits
+          detail: 50 replies, never expire
+          button: Buy
+        pack_150:
+          title: 150 credits
+          detail: 150 replies, never expire
+          button: Buy
+        regular:
+          title: Regular
+          detail: 300 credits every month
+          button: Subscribe
+    checkouts:
+      create:
+        sign_up_first: Create an account first, then you can buy credits.
+        unavailable: Payment isn't available right now. Nothing was charged. Please try again in a moment.
+        too_many: Too many attempts. Try again in a minute.
+  accounts:
+    show:
+      buy_credits: Buy credits
+      subscribed: "Your %{plan} subscription is active until %{date}."
+      checkout_success: Thank you. Your credits will appear in a moment.
+      checkout_cancelled: Nothing was charged.
+  sandbox:
+    checkouts:
+      show:
+        title: Test payment
+        banner: Test payment, no real money
+        eyebrow: Demo payment provider
+        lead: This page stands in for a payment provider's checkout. No card is asked for and nothing is charged. Choose what happens next.
+        pay: Pay (test)
+        decline: Decline (test)
+        abandon: Abandon

@@ -1,0 +1,42 @@
+fr:
+  payments:
+    price: "%{amount} €"
+    decimal_separator: ","
+    date_format: "%d/%m/%Y"
+    offers:
+      sign_up: Créez un compte pour acheter des crédits
+      per_month: " / mois"
+      products:
+        pack_50:
+          title: 50 crédits
+          detail: 50 réponses, sans date d'expiration
+          button: Acheter
+        pack_150:
+          title: 150 crédits
+          detail: 150 réponses, sans date d'expiration
+          button: Acheter
+        regular:
+          title: Regular
+          detail: 300 crédits chaque mois
+          button: S'abonner
+    checkouts:
+      create:
+        sign_up_first: Créez d'abord un compte, vous pourrez ensuite acheter des crédits.
+        unavailable: Le paiement n'est pas disponible pour le moment. Rien n'a été débité. Réessayez dans un instant.
+        too_many: Trop de tentatives. Réessayez dans une minute.
+  accounts:
+    show:
+      buy_credits: Acheter des crédits
+      subscribed: "Votre abonnement %{plan} est actif jusqu'au %{date}."
+      checkout_success: Merci. Vos crédits apparaissent dans un instant.
+      checkout_cancelled: Rien n'a été débité.
+  sandbox:
+    checkouts:
+      show:
+        title: Paiement de test
+        banner: Paiement de test, aucun argent réel
+        eyebrow: Prestataire de paiement de démonstration
+        lead: Cette page remplace la page de paiement d'un prestataire. Aucune carte n'est demandée et rien n'est débité. Choisissez ce qui se passe ensuite.
+        pay: Payer (test)
+        decline: Refuser (test)
+        abandon: Abandonner

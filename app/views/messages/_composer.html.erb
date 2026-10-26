@@ -9,7 +9,8 @@
         <%= link_to "Create a free account", new_registration_path, class: "btn btn--primary" %>
       <% else %>
         <h2>You're out of credits for today</h2>
-        <p>Your balance is topped up to <%= DailyCredits::DAILY_FLOOR %> credits every day. Paid plans are coming soon.</p>
+        <p>Your balance is topped up to <%= DailyCredits::DAILY_FLOOR %> credits every day, or get more now.</p>
+        <%= render "payments/offers", user: user %>
       <% end %>
     </div>
   <% else %>

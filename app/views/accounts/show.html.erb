@@ -3,7 +3,7 @@
   <section class="panel">
     <p class="eyebrow">Credits</p>
     <p class="balance"><%= current_user.credit_balance %></p>
-    <p class="muted">One credit per reply. Topped up to <%= DailyCredits::DAILY_FLOOR %> every day for free. Paid plans are coming soon.</p>
+    <p class="muted">One credit per reply. Topped up to <%= DailyCredits::DAILY_FLOOR %> every day for free.</p>
     <% if @entries.any? %>
       <table class="ledger">
         <thead><tr><th>Date</th><th>Movement</th><th>Credits</th></tr></thead>
@@ -18,6 +18,14 @@
         </tbody>
       </table>
     <% end %>
+  </section>
+
+  <section class="panel">
+    <p class="eyebrow"><%= t(".buy_credits") %></p>
+    <% if (subscription = current_user.active_subscription) %>
+      <p class="muted"><%= t(".subscribed", plan: t("payments.offers.products.#{subscription.product_key}.title"), date: payments_date(subscription.current_period_end)) %></p>
+    <% end %>
+    <%= render "payments/offers", user: current_user %>
   </section>
 
   <section class="panel">

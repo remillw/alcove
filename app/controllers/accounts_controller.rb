@@ -4,6 +4,8 @@ class AccountsController < ApplicationController
   def show
     DailyCredits.top_up(current_user)
     @entries = current_user.credit_entries.order(id: :desc).limit(30)
+    # back from the provider's page: the credits themselves arrive with the webhook, which may be a moment behind
+    flash.now[:notice] = t(".checkout_#{params[:checkout]}") if params[:checkout].in?(%w[success cancelled])
   end
 
   # GDPR: everything we hold about you, as JSON
