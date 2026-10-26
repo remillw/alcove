@@ -1,0 +1,22 @@
+{
+  "id": "evt_1CheckoutCompleted",
+  "object": "event",
+  "api_version": "2025-09-30.clover",
+  "created": 1793000000,
+  "type": "checkout.session.completed",
+  "livemode": false,
+  "data": {
+    "object": {
+      "id": "cs_test_a1b2c3",
+      "object": "checkout.session",
+      "mode": "payment",
+      "status": "complete",
+      "payment_status": "paid",
+      "client_reference_id": "__TOKEN__",
+      "payment_intent": "pi_3Abc",
+      "amount_total": 499,
+      "currency": "eur",
+      "metadata": { "payment_token": "__TOKEN__" }
+    }
+  }
+}

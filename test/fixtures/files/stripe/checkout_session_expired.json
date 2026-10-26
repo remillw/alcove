@@ -1,0 +1,20 @@
+{
+  "id": "evt_1CheckoutExpired",
+  "object": "event",
+  "api_version": "2025-09-30.clover",
+  "created": 1793000000,
+  "type": "checkout.session.expired",
+  "livemode": false,
+  "data": {
+    "object": {
+      "id": "cs_test_a1b2c3",
+      "object": "checkout.session",
+      "mode": "payment",
+      "status": "expired",
+      "payment_status": "unpaid",
+      "client_reference_id": "__TOKEN__",
+      "amount_total": 499,
+      "currency": "eur"
+    }
+  }
+}

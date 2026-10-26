@@ -10,7 +10,8 @@ Rails.application.configure do
     policy.connect_src(*[ :self, ("ws://localhost:*" if Rails.env.development?) ].compact)
     policy.frame_ancestors :none
     policy.base_uri :self
-    policy.form_action :self
+    # a purchase button posts to us, and we answer with a redirect to Stripe's hosted page: form-action covers redirects
+    policy.form_action(*[ :self, ("https://checkout.stripe.com" if ENV["STRIPE_SECRET_KEY"].present?) ].compact)
   end
   config.content_security_policy_nonce_generator = ->(request) { SecureRandom.base64(16) }
   config.content_security_policy_nonce_directives = %w[script-src style-src]

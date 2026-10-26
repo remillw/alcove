@@ -57,6 +57,41 @@ The request returns immediately; the job holds the slow, streaming connection. D
 | A job replayed by the queue doesn't write twice | atomic claim of the pending reply | `GenerateReplyJobTest#a reply already taken` |
 | The cached balance equals the ledger | nightly `CheckLedgerJob` reports any drift, never fixes it silently | `CreditsTest#drift ... is detected` |
 
+## Payments
+
+Credits are sold through a provider-agnostic layer, so a second provider (or a switch) never touches the app. `PAYMENTS_PROVIDER` picks the adapter (`sandbox` by default, `stripe`); the sandbox is a demo provider with a hosted "Test payment, no real money" page and signed webhooks, no money moves.
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant W as Rails
+  participant P as Provider (Stripe / sandbox)
+  B->>W: POST /checkouts (product key only)
+  W->>W: Payment pending (amount + credits from the catalogue)
+  W->>P: create_checkout(product, idempotency_key = payment.token)
+  P-->>B: hosted payment page (redirect)
+  P->>W: POST /webhooks/:provider (signed)
+  W->>W: verify signature, insert WebhookEvent (unique), Settlement
+  W->>W: Payment paid, Credits.post!(key: payment:provider:id)
+  Note over W,P: nightly ReconcilePaymentsJob asks the provider about payments pending for over an hour
+```
+
+`Payments::Provider` has three methods: `create_checkout`, `parse_webhook` (signature first, returns a normalised `Payments::Event`) and `fetch_event` (reconciliation). Everything after that, `Payments::Settlement`, only knows normalised events, so adding a provider is one adapter plus one line in `Payments::Registry`.
+
+| Invariant | How | Test |
+|---|---|---|
+| A webhook is processed once, a replay answers 200 and does nothing | unique `(provider, event_id)` inserted in the same transaction as the effects; a failure rolls the row back so the retry is processed | `Payments::WebhooksTest` |
+| Nothing is read before the signature is verified; a stale one is refused | HMAC-SHA256 of `timestamp.body`, 5 minute window (Stripe: the gem's verifier) | `Payments::WebhooksTest`, `Payments::StripeProviderTest` |
+| Credits are granted once per payment, once per subscription period | `Credits.post!` keys `payment:<provider>:<id>` and `subscription:<id>:<period_start>` | `Payments::SettlementTest` |
+| The browser never sets an amount | only a product key is posted; amount and credits are copied from the catalogue in code, and a charge that differs credits nothing | `SandboxPurchaseTest`, `Payments::SettlementTest` |
+| Money wins over a late verdict | a late "paid" settles a failed or expired payment; a late "failed" never unpays | `Payments::SettlementTest`, `SandboxPurchaseTest` |
+| A refund never takes the balance below zero | `Credits.post!(clamp: true)` takes what is left and records the shortfall in `metadata` | `Payments::SettlementTest` |
+| A lost webhook is caught up | `ReconcilePaymentsJob` (nightly) | `ReconcilePaymentsJobTest` |
+
+CSRF protection is off for the webhook endpoint only (a provider has no session; the signature is the authentication). Checkout creation is rate limited per user.
+
+**Plugging in Stripe.** Set `PAYMENTS_PROVIDER=stripe`, `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` (the adapter stays disabled until both are there). In the Stripe dashboard add the endpoint `https://<host>/webhooks/stripe` with these events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`, `charge.refunded`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.deleted`. Locally: `stripe listen --forward-to localhost:3000/webhooks/stripe` prints the `whsec_` to use. Prices come from `Payments::Product`, sent inline as `price_data`, so there is nothing to create in the dashboard. The decision and its limits are in [docs/adr/0001-payments-orchestration.md](docs/adr/0001-payments-orchestration.md).
+
 ## Design decisions
 
 - **Credits are reserved before the call, refunded on failure.** Nobody is ever served on credit, and the race between tabs is settled before money is spent. The real cost (`cost_micros`, integers) is tracked separately for margins.
@@ -101,7 +136,7 @@ A reply streams for about 8 s on average, so one `llm` thread writes ~7 replies 
 ## Not done yet (honestly)
 
 - Semantic memory recall (embeddings + HNSW index).
-- Paid plans with Stripe (top-ups, subscription, webhooks idempotent on `event.id`).
+- Payments: cancelling a subscription from Alcove (today the provider's portal), partial refunds, a customer portal link, tax.
 - A second-pass classifier on replies, graded sanctions, a human review queue for reports.
 - Password reset by email, French version, user-created characters.
 - An MCP server so an agent (Hermes) can read aggregated usage and suggest character improvements, with a human approving every change.

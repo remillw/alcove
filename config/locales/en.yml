@@ -112,7 +112,7 @@ en:
       guest_text: "Your free replies are used up. Create an account to keep this conversation and get %{count} credits, then a daily top-up."
       guest_cta: "Create a free account"
       member_title: "You're out of credits for today"
-      member_text: "Your balance is topped up to %{count} credits every day."
+      member_text: "Your balance is topped up to %{count} credits every day, or get more now."
     too_fast: "You're typing faster than anyone can read. Take a breath and try again in a moment."
     resting: "Alcove is resting for today. Please come back tomorrow."
     busy: "%{name} is still answering. Wait for the reply, or stop it."

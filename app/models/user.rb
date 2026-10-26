@@ -6,6 +6,8 @@ class User < ApplicationRecord
   has_many :sessions, dependent: :destroy
   has_many :conversations, dependent: :destroy
   has_many :credit_entries, dependent: :delete_all
+  has_many :payments, dependent: :delete_all
+  has_many :subscriptions, dependent: :delete_all
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
@@ -31,6 +33,8 @@ class User < ApplicationRecord
       Credits.post!(user: self, amount: SIGNUP_CREDITS, kind: :grant, key: "signup:#{id}")
     end
   end
+
+  def active_subscription = subscriptions.active.where("current_period_end > ?", Time.current).order(:id).last
 
   def name_for_characters = display_name.presence
 end

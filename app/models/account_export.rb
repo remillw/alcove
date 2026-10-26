@@ -1,4 +1,4 @@
-# Right of access (GDPR art. 15): the account, every conversation, memory and credit movement.
+# Right of access (GDPR art. 15): the account, every conversation, memory, credit movement and payment.
 class AccountExport
   def initialize(user) = @user = user
 
@@ -10,7 +10,8 @@ class AccountExport
           memories: c.memories.map { _1.slice(:fact, :created_at) },
           messages: c.messages.map { _1.slice(:role, :content, :status, :created_at) } }
       },
-      credits: @user.credit_entries.order(:id).map { _1.slice(:amount, :kind, :created_at) }
+      credits: @user.credit_entries.order(:id).map { _1.slice(:amount, :kind, :created_at) },
+      payments: @user.payments.order(:id).map { _1.slice(:provider, :product_key, :status, :amount_cents, :currency, :created_at) }
     )
   end
 end

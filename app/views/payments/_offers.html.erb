@@ -1,0 +1,18 @@
+<%# locals: (user:) %>
+<% if user.guest? %>
+  <%= link_to t(".sign_up"), new_registration_path, class: "btn btn--primary" %>
+<% else %>
+  <ul class="list">
+    <% Payments::Product.all.each do |product| %>
+      <% next if product.subscription? && user.active_subscription %>
+      <li class="list__item">
+        <div>
+          <strong><%= t(".products.#{product.key}.title") %></strong>
+          <p><%= t(".products.#{product.key}.detail") %> · <%= product_price(product) %><%= t(".per_month") if product.subscription? %></p>
+        </div>
+        <%# a full page load, not Turbo: the answer is a redirect to the provider's own domain %>
+        <%= button_to t(".products.#{product.key}.button"), checkouts_path(product: product.key), class: "btn #{"btn--primary" if product.subscription?}", form: { data: { turbo: false } } %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

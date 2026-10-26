@@ -112,7 +112,7 @@ fr:
       guest_text: "Vos réponses gratuites sont épuisées. Créez un compte pour garder cette conversation et recevoir %{count} crédits, puis une recharge chaque jour."
       guest_cta: "Créer un compte gratuit"
       member_title: "Plus de crédits pour aujourd'hui"
-      member_text: "Votre solde remonte à %{count} crédits chaque jour."
+      member_text: "Votre solde remonte à %{count} crédits chaque jour, ou prenez-en plus maintenant."
     too_fast: "Vous écrivez plus vite qu'on ne peut lire. Respirez un coup et réessayez dans un instant."
     resting: "Alcove se repose pour aujourd'hui. Revenez demain."
     busy: "%{name} est encore en train de répondre. Attendez la réponse, ou arrêtez-la."

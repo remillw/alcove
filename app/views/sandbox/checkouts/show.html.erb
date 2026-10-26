@@ -1,0 +1,15 @@
+<% content_for :title, t(".title") %>
+<p class="test-banner" role="alert"><%= t(".banner") %></p>
+<div class="stage stage--narrow stack">
+  <section class="panel">
+    <p class="eyebrow"><%= t(".eyebrow") %></p>
+    <h1><%= t("payments.offers.products.#{@product.key}.title") %></h1>
+    <p class="balance"><%= product_price(@product) %><%= t("payments.offers.per_month") if @product.subscription? %></p>
+    <p class="muted"><%= t(".lead") %></p>
+    <div class="row">
+      <%= button_to t(".pay"), sandbox_outcome_path(params[:token], "pay"), class: "btn btn--primary" %>
+      <%= button_to t(".decline"), sandbox_outcome_path(params[:token], "decline"), class: "btn btn--danger" %>
+      <%= button_to t(".abandon"), sandbox_outcome_path(params[:token], "abandon"), class: "btn btn--quiet" %>
+    </div>
+  </section>
+</div>

@@ -10,6 +10,7 @@
       <% else %>
         <h2><%= t("messages.composer.member_title") %></h2>
         <p><%= t("messages.composer.member_text", count: DailyCredits::DAILY_FLOOR) %></p>
+        <%= render "payments/offers", user: user %>
       <% end %>
     </div>
   <% else %>
