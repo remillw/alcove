@@ -16,7 +16,14 @@ module Llm
       end
     end
 
-    def stream(**params) = client.messages.stream(**params)
-    def create(**params) = client.messages.create(**params)
+    def stream(**params) = client.messages.stream(**with_workspace(params))
+    def create(**params) = client.messages.create(**with_workspace(params))
+
+    private
+
+    # a key that isn't scoped to a workspace must name one on every request
+    def with_workspace(params)
+      ENV["ANTHROPIC_WORKSPACE_ID"].present? ? params.merge(workspace_id: ENV["ANTHROPIC_WORKSPACE_ID"]) : params
+    end
   end
 end
