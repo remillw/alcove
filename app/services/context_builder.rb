@@ -87,7 +87,7 @@ class ContextBuilder
 
   # after the cached block: changes every request (time of day), so it must not break the cache
   def memory_block
-    facts = @conversation.memories.for_prompt.pluck(:fact)
+    facts = Recall.new(@conversation).facts # important facts + the ones about what they just said
     name = @conversation.user.name_for_characters
     kept = @conversation.keepsake_items.order(updated_at: :desc).limit(12).map { "- #{_1.title}#{" (#{_1.status})" if _1.status}#{": #{_1.detail}" if _1.detail.present?}" }
 

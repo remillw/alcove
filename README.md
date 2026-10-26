@@ -57,6 +57,16 @@ The request returns immediately; the job holds the slow, streaming connection. D
 | A job replayed by the queue doesn't write twice | atomic claim of the pending reply | `GenerateReplyJobTest#a reply already taken` |
 | The cached balance equals the ledger | nightly `CheckLedgerJob` reports any drift, never fixes it silently | `CreditsTest#drift ... is detected` |
 
+## Memory recall
+
+The `<memory>` block no longer lists "the 15 most important facts": `Recall` (app/services/recall.rb) picks the 5 most important facts plus the 8 most relevant to what the user just said (their last message and the two before it), deduplicated, so a character brings back the right memory even among hundreds of facts.
+
+- Without a key: PostgreSQL full-text search (generated `fact_tsv` column, `simple` config so French and English behave alike, GIN index, `ts_rank`). Free, on by default. It matches words, not meaning.
+- With `VOYAGE_API_KEY`: Voyage AI embeddings (`VOYAGE_MODEL`, default `voyage-3.5-lite`, 1024 dimensions) computed by `EmbedMemoryJob` when a fact is created, searched with pgvector HNSW and cosine distance. Existing facts: `bin/rails memory:embed`. If Voyage fails, a reply silently falls back to full text.
+- Measure it: `bin/rails memory:eval` (add `VOYAGE_API_KEY=...` to include embeddings) runs 15 messages against 40 facts (`evals/memory/dataset.yml`) and writes `evals/memory/<date>.md`.
+
+Recall on 26/10/2026, full text only (embeddings not measured yet, no key on this machine): the expected fact reaches the prompt in **6/15 (40%)**, against 3/15 (20%) with the old "most important only" rule. The misses are all meaning without shared words ("arachides" for "cacahuètes"), which is what the embeddings engine is for.
+
 ## Payments
 
 Credits are sold through a provider-agnostic layer, so a second provider (or a switch) never touches the app. `PAYMENTS_PROVIDER` picks the adapter (`sandbox` by default, `stripe`); the sandbox is a demo provider with a hosted "Test payment, no real money" page and signed webhooks, no money moves.
