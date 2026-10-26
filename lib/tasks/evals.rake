@@ -4,3 +4,10 @@ namespace :evals do
     Evals::Runner.new(only: ENV["ONLY"]).run
   end
 end
+
+namespace :evals do
+  desc "Simulated users talk to every character (TURNS=6 ONLY=ada PERSONAS=beginner,sceptic), a critic reviews, report in evals/simulations/"
+  task simulate: :environment do
+    Evals::Simulator.new(turns: ENV.fetch("TURNS", 6).to_i, only: ENV["ONLY"], personas: ENV["PERSONAS"]).run
+  end
+end

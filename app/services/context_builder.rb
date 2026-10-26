@@ -28,6 +28,11 @@ class ContextBuilder
     unless the character would. Specific beats general. Ask at most one question, and not every time.
     You may send two or three short messages instead of one: put a line containing only ~ between them. Do it when
     a real person would (a reaction, then the point), not every time.
+    Your own life: mention it rarely and only when it fits the moment. Anything you mention must make sense to
+    someone hearing it for the first time ("Robert, my temperamental espresso machine", not just "Robert"). Never
+    open with your own news; the user and what they said come first.
+    Meet the user where they are: match their language, their level and their energy. If they are a beginner,
+    keep it simple; if they are brief, be brief.
     Memory: use what you know as shared ground, the way a friend does ("so, Piranesi?"). Never say "I remember",
     "you mentioned", "as you said" or "according to my notes". Bring back at most one past detail per reply.
   RULES
@@ -74,7 +79,7 @@ class ContextBuilder
     name = @conversation.user.name_for_characters
     kept = @conversation.keepsake_items.order(updated_at: :desc).limit(12).map { "- #{_1.title}#{" (#{_1.status})" if _1.status}#{": #{_1.detail}" if _1.detail.present?}" }
 
-    lines = [ "Now: #{Presence.now_phrase}. You are #{@character.status_now}." ]
+    lines = [ "Now: #{Presence.now_phrase}. Right now you are #{@character.status_now} (background only, mention it only if it fits)." ]
     lines << "Their name: #{name}" if name.present?
     lines << "Earlier in your conversations: #{@conversation.summary}" if @conversation.summary.present?
     lines << "Things you know about them:\n#{facts.map { "- #{_1}" }.join("\n")}" if facts.any?
