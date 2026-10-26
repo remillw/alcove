@@ -1,0 +1,24 @@
+{
+  "id": "evt_1InvoiceFailed",
+  "object": "event",
+  "api_version": "2025-09-30.clover",
+  "created": 1793000200,
+  "type": "invoice.payment_failed",
+  "livemode": false,
+  "data": {
+    "object": {
+      "id": "in_1Def",
+      "object": "invoice",
+      "amount_due": 999,
+      "amount_paid": 0,
+      "currency": "eur",
+      "parent": {
+        "type": "subscription_details",
+        "subscription_details": {
+          "subscription": "sub_1Abc",
+          "metadata": { "payment_token": "__TOKEN__" }
+        }
+      }
+    }
+  }
+}

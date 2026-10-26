@@ -36,6 +36,7 @@ gem "thruster", require: false
 gem "anthropic", "~> 2.3"
 # pgvector (colonne embedding des souvenirs, recherche par sens plus tard)
 gem "neighbor"
+gem "stripe"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

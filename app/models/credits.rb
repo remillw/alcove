@@ -4,11 +4,17 @@
 module Credits
   InsufficientBalance = Class.new(StandardError)
 
-  def self.post!(user:, amount:, kind:, key:, message: nil, metadata: {})
+  # clamp: a debit that the balance can't cover takes what is left instead of raising (refunds: the credits may
+  # already be spent, the balance still never goes below zero). The shortfall is written in the entry's metadata.
+  def self.post!(user:, amount:, kind:, key:, message: nil, metadata: {}, clamp: false)
     User.transaction do
       user.lock!
       if (done = CreditEntry.find_by(idempotency_key: key))
         next done
+      end
+      if clamp && user.credit_balance + amount < 0
+        metadata = metadata.merge(requested: amount, shortfall: -(user.credit_balance + amount))
+        amount = -user.credit_balance
       end
       raise InsufficientBalance if user.credit_balance + amount < 0
 

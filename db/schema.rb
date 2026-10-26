@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_26_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_27_090200) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -123,6 +123,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_130000) do
     t.datetime "created_at", null: false
   end
 
+  create_table "payments", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "subscription_id"
+    t.string "provider", null: false
+    t.string "token", null: false
+    t.string "external_id"
+    t.string "checkout_ref"
+    t.string "product_key", null: false
+    t.string "status", default: "pending", null: false
+    t.integer "amount_cents", null: false
+    t.string "currency", default: "EUR", null: false
+    t.integer "credits", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "paid_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["created_at"], name: "index_payments_pending_on_created_at", where: "((status)::text = 'pending'::text)"
+    t.index ["provider", "external_id"], name: "index_payments_on_provider_and_external_id", unique: true, where: "(external_id IS NOT NULL)"
+    t.index ["subscription_id"], name: "index_payments_on_subscription_id"
+    t.index ["token"], name: "index_payments_on_token", unique: true
+    t.index ["user_id"], name: "index_payments_on_user_id"
+  end
+
   create_table "reports", force: :cascade do |t|
     t.bigint "message_id"
     t.bigint "user_id"
@@ -142,6 +165,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_130000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "subscriptions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "provider", null: false
+    t.string "external_id", null: false
+    t.string "product_key", null: false
+    t.string "status", default: "active", null: false
+    t.datetime "current_period_start"
+    t.datetime "current_period_end"
+    t.datetime "canceled_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider", "external_id"], name: "index_subscriptions_on_provider_and_external_id", unique: true
+    t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 
   create_table "usage_events", force: :cascade do |t|
@@ -178,6 +216,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_130000) do
     t.check_constraint "credit_balance >= 0", name: "credit_balance_not_negative"
   end
 
+  create_table "webhook_events", force: :cascade do |t|
+    t.string "provider", null: false
+    t.string "event_id", null: false
+    t.string "event_type", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.datetime "processed_at"
+    t.datetime "created_at", null: false
+    t.index ["provider", "event_id"], name: "index_webhook_events_on_provider_and_event_id", unique: true
+  end
+
   add_foreign_key "conversations", "characters"
   add_foreign_key "conversations", "users", on_delete: :cascade
   add_foreign_key "credit_entries", "messages", on_delete: :nullify
@@ -187,9 +235,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_130000) do
   add_foreign_key "memories", "conversations", on_delete: :cascade
   add_foreign_key "memories", "messages", column: "source_message_id", on_delete: :nullify
   add_foreign_key "messages", "conversations", on_delete: :cascade
+  add_foreign_key "payments", "subscriptions", on_delete: :nullify
+  add_foreign_key "payments", "users", on_delete: :cascade
   add_foreign_key "reports", "messages", on_delete: :cascade
   add_foreign_key "reports", "users", on_delete: :nullify
   add_foreign_key "sessions", "users"
+  add_foreign_key "subscriptions", "users", on_delete: :cascade
   add_foreign_key "usage_events", "characters"
   add_foreign_key "usage_events", "messages", on_delete: :nullify
   add_foreign_key "usage_events", "users", on_delete: :nullify

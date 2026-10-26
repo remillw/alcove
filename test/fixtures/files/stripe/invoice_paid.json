@@ -1,0 +1,28 @@
+{
+  "id": "evt_1InvoicePaid",
+  "object": "event",
+  "api_version": "2025-09-30.clover",
+  "created": 1793000000,
+  "type": "invoice.paid",
+  "livemode": false,
+  "data": {
+    "object": {
+      "id": "in_1Abc",
+      "object": "invoice",
+      "amount_paid": 999,
+      "currency": "eur",
+      "billing_reason": "subscription_cycle",
+      "parent": {
+        "type": "subscription_details",
+        "subscription_details": {
+          "subscription": "sub_1Abc",
+          "metadata": { "payment_token": "__TOKEN__" }
+        }
+      },
+      "lines": {
+        "object": "list",
+        "data": [ { "id": "il_1", "period": { "start": 1793000000, "end": 1795592000 } } ]
+      }
+    }
+  }
+}

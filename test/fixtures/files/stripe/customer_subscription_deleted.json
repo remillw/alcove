@@ -1,0 +1,9 @@
+{
+  "id": "evt_1SubDeleted",
+  "object": "event",
+  "api_version": "2025-09-30.clover",
+  "created": 1793000300,
+  "type": "customer.subscription.deleted",
+  "livemode": false,
+  "data": { "object": { "id": "sub_1Abc", "object": "subscription", "status": "canceled" } }
+}

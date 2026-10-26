@@ -21,6 +21,14 @@ Rails.application.routes.draw do
     get :export
   end
 
+  scope module: :payments do
+    resources :checkouts, only: :create
+    post "webhooks/:provider" => "webhooks#create", as: :webhook
+  end
+  # the sandbox provider's hosted page (404 unless PAYMENTS_PROVIDER=sandbox)
+  get "sandbox/checkout/:token" => "sandbox/checkouts#show", as: :sandbox_checkout
+  post "sandbox/checkout/:token/:outcome" => "sandbox/checkouts#create", as: :sandbox_outcome, constraints: { outcome: /pay|decline|abandon/ }
+
   get "legal" => "pages#legal"
   get "terms" => "pages#terms"
   get "privacy" => "pages#privacy"
