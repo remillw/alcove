@@ -54,13 +54,18 @@ class Payments::StripeProviderTest < ActionDispatch::IntegrationTest
 
   test "the other events are normalised too" do
     assert_equal :payment_expired, parse(:checkout_session_expired, token: "tok").type
-    refund = parse(:charge_refunded)
-    assert_equal [ :payment_refunded, "pi_3Abc", 499 ], [ refund.type, refund.external_id, refund.amount_cents ]
+    refund = parse(:refund_created)
+    assert_equal [ :payment_refunded, "pi_3Abc", "re_3Abc", 499, "EUR" ], refund.to_h.values_at(:type, :external_id, :refund_id, :amount_cents, :currency)
+    assert_equal 100, parse(:refund_partial).amount_cents
+    assert_equal :ignored, parse(:refund_pending).type # no money has moved yet
+    assert_equal :ignored, parse(:charge_refunded).type # a running total with no refund id: refund.* carry the countable one
     invoice = parse(:invoice_paid, token: "tok-4")
     assert_equal [ :subscription_paid, "sub_1Abc", "in_1Abc", "tok-4", 999 ], invoice.to_h.values_at(:type, :subscription_id, :external_id, :token, :amount_cents)
     assert_equal [ Time.at(1793000000).utc, Time.at(1795592000).utc ], [ invoice.period_start, invoice.period_end ]
     assert_equal [ :subscription_past_due, "sub_1Abc" ], parse(:invoice_payment_failed).to_h.values_at(:type, :subscription_id)
     assert_equal [ :subscription_canceled, "sub_1Abc" ], parse(:customer_subscription_deleted).to_h.values_at(:type, :subscription_id)
+    assert_equal [ :subscription_updated, "sub_1Abc", true ], parse(:customer_subscription_cancel_scheduled).to_h.values_at(:type, :subscription_id, :cancel_at_period_end)
+    assert_equal [ :subscription_updated, false ], parse(:customer_subscription_resumed).to_h.values_at(:type, :cancel_at_period_end)
     assert_equal :ignored, parse(:customer_created).type
   end
 
@@ -112,7 +117,7 @@ class Payments::StripeProviderTest < ActionDispatch::IntegrationTest
     Credits.post!(user: @user, amount: 50, kind: :purchase, key: "payment:stripe:pi_3Abc")
 
     with_env(STRIPE_SECRET_KEY: "sk_test_x", STRIPE_WEBHOOK_SECRET: STRIPE_SECRET) do
-      [ [ :invoice_paid, first.token ], [ :invoice_payment_failed, first.token ], [ :charge_refunded, "-" ] ].each do |name, token|
+      [ [ :invoice_paid, first.token ], [ :invoice_payment_failed, first.token ], [ :refund_created, "-" ] ].each do |name, token|
         payload, headers = stripe_fixture(name, token:)
         post "/webhooks/stripe", params: payload, headers: headers
         assert_response :ok
@@ -123,6 +128,70 @@ class Payments::StripeProviderTest < ActionDispatch::IntegrationTest
     assert subscription.past_due?
     assert pack.reload.refunded?
     assert_equal 305, @user.reload.credit_balance # 5 + 50 pack - 50 refund + 300 month
+  end
+
+  # ---- cancellation and resume -----------------------------------------------------------------------------------
+
+  def stripe_subscription(**attrs)
+    Subscription.create!({ user: @user, provider: "stripe", external_id: "sub_1Abc", product_key: "regular", current_period_start: 5.days.ago, current_period_end: 25.days.from_now }.merge(attrs))
+  end
+
+  def post_stripe(name, token: "-")
+    payload, headers = stripe_fixture(name, token:)
+    with_env(STRIPE_SECRET_KEY: "sk_test_x", STRIPE_WEBHOOK_SECRET: STRIPE_SECRET) { post "/webhooks/stripe", params: payload, headers: headers }
+    assert_response :ok
+  end
+
+  test "cancelling asks Stripe to stop at the period's end, not now" do
+    @provider.cancel_subscription(stripe_subscription)
+    assert_equal [ [ "sub_1Abc", { cancel_at_period_end: true } ] ], @client.updated
+  end
+
+  test "resuming sets the flag back" do
+    @provider.resume_subscription(stripe_subscription)
+    assert_equal [ [ "sub_1Abc", { cancel_at_period_end: false } ] ], @client.updated
+  end
+
+  test "a Stripe refusal becomes a Payments::Error and nothing is assumed" do
+    provider = Payments::Providers::Stripe.new(client: FakeStripeClient.new(failing: true), webhook_secret: STRIPE_SECRET)
+    assert_raises(Payments::Error) { provider.cancel_subscription(stripe_subscription) }
+  end
+
+  test "recorded events end to end: scheduled, replayed, resumed, scheduled again, then deleted" do
+    subscription = stripe_subscription
+
+    2.times { post_stripe(:customer_subscription_cancel_scheduled) }
+    assert subscription.reload.cancel_scheduled?
+    assert_equal 1, WebhookEvent.where(event_id: "evt_1SubCancel").count
+
+    post_stripe(:customer_subscription_resumed)
+    assert_not subscription.reload.cancel_scheduled?
+
+    post_stripe(:customer_subscription_cancel_scheduled) # a new event id would be a new action; the fixture's id is a replay
+    assert_not subscription.reload.cancel_scheduled?, "the replayed event was not applied twice"
+
+    post_stripe(:customer_subscription_deleted)
+    assert subscription.reload.canceled?
+    assert_nil @user.active_subscription
+  end
+
+  # ---- partial refunds -------------------------------------------------------------------------------------------
+
+  test "recorded refund events: two partial refunds, a pending one that changes nothing, a replay" do
+    pack = create_payment(provider: "stripe", external_id: "pi_3Abc", status: "paid", paid_at: Time.current)
+    Credits.post!(user: @user, amount: 50, kind: :purchase, key: "payment:stripe:pi_3Abc") # 55
+
+    post_stripe(:refund_pending)
+    assert pack.reload.paid?
+
+    2.times { post_stripe(:refund_partial) } # 100 cents -> 10 credits, once
+    assert pack.reload.partially_refunded?
+    assert_equal 45, @user.reload.credit_balance
+
+    post_stripe(:refund_created) # 499 cents on top of the 100: only 399 are left to return
+    assert pack.reload.refunded?
+    assert_equal [ 499, 50 ], pack.values_at(:refunded_cents, :credits_refunded)
+    assert_equal 5, @user.reload.credit_balance
   end
 
   # ---- reconciliation ------------------------------------------------------------------------------------------

@@ -76,7 +76,7 @@ sequenceDiagram
   Note over W,P: nightly ReconcilePaymentsJob asks the provider about payments pending for over an hour
 ```
 
-`Payments::Provider` has three methods: `create_checkout`, `parse_webhook` (signature first, returns a normalised `Payments::Event`) and `fetch_event` (reconciliation). Everything after that, `Payments::Settlement`, only knows normalised events, so adding a provider is one adapter plus one line in `Payments::Registry`.
+`Payments::Provider` has five methods: `create_checkout`, `parse_webhook` (signature first, returns a normalised `Payments::Event`), `fetch_event` (reconciliation), `cancel_subscription` and `resume_subscription`. Everything after that, `Payments::Settlement`, only knows normalised events, so adding a provider is one adapter plus one line in `Payments::Registry`.
 
 | Invariant | How | Test |
 |---|---|---|
@@ -86,11 +86,22 @@ sequenceDiagram
 | The browser never sets an amount | only a product key is posted; amount and credits are copied from the catalogue in code, and a charge that differs credits nothing | `SandboxPurchaseTest`, `Payments::SettlementTest` |
 | Money wins over a late verdict | a late "paid" settles a failed or expired payment; a late "failed" never unpays | `Payments::SettlementTest`, `SandboxPurchaseTest` |
 | A refund never takes the balance below zero | `Credits.post!(clamp: true)` takes what is left and records the shortfall in `metadata` | `Payments::SettlementTest` |
+| Partial refunds take credits back pro rata, and never more than were bought | credits = `credits * refunded / amount`, rounded half up on the cumulative refunded total (so roundings can't drift and a full refund takes exactly `credits`); an excess is cut to what is left and reported | `Payments::SettlementTest` |
+| Each refund counts once | one event per provider refund id, kept on the payment and used as the ledger key `refund:<provider>:<refund_id>`, whatever the number of events about it | `Payments::SettlementTest`, `SubscriptionAndRefundTest` |
+| Cancelling changes nothing until the provider says so | the button only asks (`cancel_at_period_end`); `subscription_updated` then `subscription_canceled` events, processed once, move our mirror | `SubscriptionAndRefundTest`, `Payments::StripeProviderTest` |
 | A lost webhook is caught up | `ReconcilePaymentsJob` (nightly) | `ReconcilePaymentsJobTest` |
+
+**Cancel and refunds.** The account page has "Cancel subscription" (with a confirmation): it asks the provider to stop at the end of the period (Stripe: `cancel_at_period_end: true`), the plan and its credits stay until then, the page shows "ends on <date>" with "Resume subscription" while the period runs. Our state only changes when the provider's event comes back (`customer.subscription.updated`, then `customer.subscription.deleted` at the end), like every other webhook. Refunds are made at the provider; each one arrives as an event and the credits come back pro rata (payment status `partially_refunded`, then `refunded`). There is no refund button in the app. For the demo, the sandbox has operator tasks that deliver the same signed events:
+
+```sh
+bin/rails "payments:sandbox_refund[PAYMENT_ID]"                # everything that is left
+bin/rails "payments:sandbox_refund[PAYMENT_ID,100]"            # 100 cents
+bin/rails "payments:sandbox_end_subscription[SUBSCRIPTION_ID]" # the close of the period for a cancelled plan
+```
 
 CSRF protection is off for the webhook endpoint only (a provider has no session; the signature is the authentication). Checkout creation is rate limited per user.
 
-**Plugging in Stripe.** Set `PAYMENTS_PROVIDER=stripe`, `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` (the adapter stays disabled until both are there). In the Stripe dashboard add the endpoint `https://<host>/webhooks/stripe` with these events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`, `charge.refunded`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.deleted`. Locally: `stripe listen --forward-to localhost:3000/webhooks/stripe` prints the `whsec_` to use. Prices come from `Payments::Product`, sent inline as `price_data`, so there is nothing to create in the dashboard. The decision and its limits are in [docs/adr/0001-payments-orchestration.md](docs/adr/0001-payments-orchestration.md).
+**Plugging in Stripe.** Set `PAYMENTS_PROVIDER=stripe`, `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` (the adapter stays disabled until both are there). In the Stripe dashboard add the endpoint `https://<host>/webhooks/stripe` with these events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.updated`, `customer.subscription.deleted`, `refund.created`, `refund.updated` (replacing `charge.refunded`, which is ignored: it has a running total and no refund id). Locally: `stripe listen --forward-to localhost:3000/webhooks/stripe` prints the `whsec_` to use. Prices come from `Payments::Product`, sent inline as `price_data`, so there is nothing to create in the dashboard. The decision and its limits are in [docs/adr/0001-payments-orchestration.md](docs/adr/0001-payments-orchestration.md).
 
 ## Design decisions
 

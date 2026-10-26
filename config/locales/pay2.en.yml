@@ -1,0 +1,17 @@
+en:
+  payments:
+    subscription:
+      ends: "Your %{plan} subscription ends on %{date}. You keep the plan until then, and it will not renew."
+      cancel: Cancel subscription
+      cancel_confirm: "Stop your subscription at the end of the current period? You keep the plan and its credits until then."
+      resume: Resume subscription
+    cancellations:
+      create:
+        requested: Cancellation requested. Your subscription stays active until the end of the period and will not renew.
+        already: Your subscription is already set to end.
+        unavailable: We couldn't reach the payment provider. Nothing was changed. Please try again in a moment.
+      destroy:
+        resumed: Your subscription will renew as usual.
+        too_late: This subscription has ended, it can't be resumed. You can subscribe again below.
+        unavailable: We couldn't reach the payment provider. Nothing was changed. Please try again in a moment.
+      none: You have no active subscription.

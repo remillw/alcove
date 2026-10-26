@@ -39,13 +39,22 @@ module Payments
         body = JSON.parse(request.raw_post)
         data = body.fetch("data")
         type = { "payment.succeeded" => :payment_succeeded, "payment.failed" => :payment_failed,
-                 "subscription.paid" => :subscription_paid }.fetch(body["type"], :ignored)
+                 "subscription.paid" => :subscription_paid, "subscription.updated" => :subscription_updated,
+                 "subscription.canceled" => :subscription_canceled, "payment.refunded" => :payment_refunded }.fetch(body["type"], :ignored)
         Event.new(provider: name, id: body.fetch("id"), type:, token: data["reference"], external_id: data["payment_id"],
           subscription_id: data["subscription_id"], amount_cents: data["amount_cents"], currency: data["currency"],
-          period_start: parse_time(data["period_start"]), period_end: parse_time(data["period_end"]))
+          period_start: parse_time(data["period_start"]), period_end: parse_time(data["period_end"]),
+          refund_id: data["refund_id"], cancel_at_period_end: data["cancel_at_period_end"])
       rescue JSON::ParserError, KeyError
         raise InvalidSignature, "malformed payload"
       end
+
+      # The sandbox has no dashboard, so what a customer would do there is simulated by signed events, delivered through
+      # the same path as every webhook. Ids are random: each click is a new action, while a replay of one delivered
+      # event (same id) is still absorbed by the WebhookEvent unique index.
+      def cancel_subscription(subscription) = notify("subscription.updated", "evt_sbx_upd_#{SecureRandom.hex(8)}", subscription_id: subscription.external_id, cancel_at_period_end: true)
+
+      def resume_subscription(subscription) = notify("subscription.updated", "evt_sbx_upd_#{SecureRandom.hex(8)}", subscription_id: subscription.external_id, cancel_at_period_end: false)
 
       # The sandbox keeps no state: a checkout older than its token's life can no longer be completed.
       def fetch_event(payment)
@@ -80,7 +89,26 @@ module Payments
         Webhooks.receive(self, signed_request({ id:, type:, created: Time.current.to_i, data: }.to_json))
       end
 
+      # Demo and test tools, NOT part of Payments::Provider and never reachable from a controller (see
+      # lib/tasks/payments.rake). A real provider's refund is made in its dashboard and reaches us as a webhook; here the
+      # operator plays the dashboard. amount_cents nil = refund everything that is left. Returns the refund id.
+      def refund(payment, amount_cents: nil)
+        payment.reload # the running total decides what is left to refund
+        raise Error, "not a sandbox payment" unless payment.provider == name && payment.external_id.present?
+        amount_cents ||= payment.refundable_cents
+        raise Error, "refund of #{amount_cents} cents is not between 1 and the #{payment.refundable_cents} left" unless amount_cents.between?(1, payment.refundable_cents)
+
+        refund_id = "sbx_re_#{SecureRandom.hex(8)}"
+        notify("payment.refunded", "evt_#{refund_id}", payment_id: payment.external_id, refund_id:, amount_cents:, currency: payment.currency)
+        refund_id
+      end
+
+      # What happens at the close of a period for a subscription that was set to end (the sandbox has no clock).
+      def end_subscription(subscription) = notify("subscription.canceled", "evt_sbx_end_#{SecureRandom.hex(8)}", subscription_id: subscription.external_id)
+
       private
+
+      def notify(type, id, **data) = Webhooks.receive(self, signed_request({ id:, type:, created: Time.current.to_i, data: }.to_json))
 
       # opaque, stable per checkout, and not guessable from the Payment token
       def checkout_id(reference) = "sbx_#{OpenSSL::HMAC.hexdigest("SHA256", self.class.secret, "checkout:#{reference}")[0, 20]}"
