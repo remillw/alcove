@@ -2,6 +2,9 @@ production:
   clean_up_guests:
     class: CleanUpGuestsJob
     schedule: every day at 4am
+  daily_digest:
+    class: DailyDigestJob
+    schedule: every day at 9pm
   check_ledger:
     class: CheckLedgerJob
     schedule: every day at 4:30am

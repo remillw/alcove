@@ -9,6 +9,8 @@ x-app: &app
   environment:
     DB_HOST: db
     DB_PORT: "5432"
+  extra_hosts:
+    - "host.docker.internal:host-gateway" # Hermes webhooks on the host (port 8644)
   depends_on:
     db:
       condition: service_healthy
