@@ -1,0 +1,6 @@
+<% size = local_assigns.fetch(:size, 40) %>
+<% if character.portrait? %>
+  <%= image_tag "portraits/#{character.slug}.svg", alt: "", class: ["portrait", local_assigns[:extra]], width: size, height: size, loading: local_assigns.fetch(:loading, "lazy") %>
+<% else %>
+  <span class="avatar" data-tint="<%= character.avatar_tint %>" data-motif="<%= character.avatar_motif %>" aria-hidden="true"><%= character.name.first %></span>
+<% end %>

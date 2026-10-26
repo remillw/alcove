@@ -36,7 +36,13 @@ module Llm
 
     def create(**params)
       @requests << params
-      body = json || { summary: "They chatted about their week.", facts: [ { fact: "Likes long walks", importance: 2 } ] }.to_json
+      keepsake = params.dig(:output_config, :format, :schema, :properties)&.key?(:changes)
+      body = json || if keepsake
+        { changes: [ { op: "upsert", key: "piranesi", title: "Piranesi", detail: "Susanna Clarke", status: "to_read", note: "a house of tides and statues" } ],
+          suggestions: [ "Tell me more", "Something lighter?", "I'll start tonight" ] }.to_json
+                     else
+        { summary: "They chatted about their week.", facts: [ { fact: "Likes long walks", importance: 2 } ] }.to_json
+                     end
       Response.new([ Block.new(:text, body) ], Usage.new(input_tokens: 800, output_tokens: 60))
     end
   end

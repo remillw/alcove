@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_26_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_26_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -30,6 +30,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_120000) do
     t.boolean "published", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "accent", default: "#E2A24B", null: false
+    t.string "keepsake", default: "none", null: false
+    t.jsonb "statuses", default: {}, null: false
+    t.jsonb "starters", default: [], null: false
+    t.jsonb "returns", default: {}, null: false
+    t.jsonb "showcase", default: [], null: false
     t.index ["published", "position"], name: "index_characters_on_published_and_position"
     t.index ["slug"], name: "index_characters_on_slug", unique: true
   end
@@ -42,6 +48,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_120000) do
     t.datetime "last_message_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "suggestions", default: [], null: false
     t.index ["character_id"], name: "index_conversations_on_character_id"
     t.index ["user_id", "character_id"], name: "index_conversations_on_user_id_and_character_id", unique: true
     t.index ["user_id", "last_message_at"], name: "index_conversations_on_user_id_and_last_message_at"
@@ -59,6 +66,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_120000) do
     t.index ["idempotency_key"], name: "index_credit_entries_on_idempotency_key", unique: true
     t.index ["message_id"], name: "index_credit_entries_on_message_id"
     t.index ["user_id", "id"], name: "index_credit_entries_on_user_id_and_id"
+  end
+
+  create_table "keepsake_items", force: :cascade do |t|
+    t.bigint "conversation_id", null: false
+    t.string "key", null: false
+    t.string "status"
+    t.string "title", null: false
+    t.text "detail"
+    t.text "note"
+    t.bigint "source_message_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id", "key"], name: "index_keepsake_items_on_conversation_id_and_key", unique: true
+    t.index ["source_message_id"], name: "index_keepsake_items_on_source_message_id"
   end
 
   create_table "memories", force: :cascade do |t|
@@ -88,6 +109,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_120000) do
     t.uuid "client_nonce"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "part_of_id"
     t.index ["conversation_id", "client_nonce"], name: "index_messages_on_conversation_id_and_client_nonce", unique: true, where: "(client_nonce IS NOT NULL)"
     t.index ["conversation_id", "id"], name: "index_messages_on_conversation_id_and_id"
     t.index ["conversation_id"], name: "one_active_reply_per_conversation", unique: true, where: "(((role)::text = 'assistant'::text) AND ((status)::text = ANY ((ARRAY['pending'::character varying, 'streaming'::character varying])::text[])))"
@@ -160,6 +182,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_120000) do
   add_foreign_key "conversations", "users", on_delete: :cascade
   add_foreign_key "credit_entries", "messages", on_delete: :nullify
   add_foreign_key "credit_entries", "users", on_delete: :cascade
+  add_foreign_key "keepsake_items", "conversations", on_delete: :cascade
+  add_foreign_key "keepsake_items", "messages", column: "source_message_id", on_delete: :nullify
   add_foreign_key "memories", "conversations", on_delete: :cascade
   add_foreign_key "memories", "messages", column: "source_message_id", on_delete: :nullify
   add_foreign_key "messages", "conversations", on_delete: :cascade

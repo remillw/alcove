@@ -9,6 +9,7 @@ class ConversationsController < ApplicationController
 
   def show
     DailyCredits.top_up(current_user)
+    Welcome.back(@conversation)
     @messages = @conversation.messages.last(80)
   end
 

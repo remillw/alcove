@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="t"><title id="t">Theo Marsh</title>
+<defs><clipPath id="c"><circle cx="120" cy="120" r="120"/></clipPath>
+<pattern id="g" width="30" height="30" patternUnits="userSpaceOnUse"><g fill="#000" opacity=".09"><circle cx="3" cy="5" r=".9"/><circle cx="14" cy="2" r=".7"/><circle cx="24" cy="9" r="1"/><circle cx="9" cy="16" r=".8"/><circle cx="20" cy="21" r=".9"/><circle cx="28" cy="27" r=".7"/><circle cx="5" cy="26" r="1"/><circle cx="15" cy="11" r=".6"/></g><g fill="#fff" opacity=".12"><circle cx="8" cy="9" r=".8"/><circle cx="19" cy="15" r=".7"/><circle cx="26" cy="19" r=".9"/><circle cx="12" cy="24" r=".7"/><circle cx="2" cy="17" r=".6"/></g></pattern></defs>
+<g clip-path="url(#c)"><rect width="240" height="240" fill="#C9A15B"/>
+<g transform="translate(-12 -22) scale(1.1)"><path d="M22 240c2-36 30-60 78-66h40c48 6 76 30 78 66z" fill="#3A4047"/>
+<path d="M76 240l8-62 36 14 36-14 8 62z" fill="#EFE8DA"/><path d="M84 178l22 12-14 50h-18zM156 178l-22 12 14 50h18z" fill="#2B3036" opacity="0"/>
+<path d="M84 178c4 20 6 40 4 62M156 178c-4 20-6 40-4 62" stroke="#2B3036" stroke-width="5" fill="none"/>
+<path d="M106 200h28v22h-28z" fill="#000" opacity=".08"/>
+<g transform="rotate(-18 176 196)"><rect x="150" y="182" width="52" height="26" rx="3" fill="#EFE8DA"/><path d="M150 190h52M150 200h52" stroke="#B5533C" stroke-width="4"/></g>
+<path d="M103 130h34v46H103z" fill="#DDA582"/><path d="M103 150q17 14 34 0v-20h-34z" fill="#BE8461"/>
+<ellipse cx="120" cy="102" rx="39" ry="45" fill="#DDA582"/>
+<path d="M134 59q35 36 4 70q-14 9 -20 4q20 -40 12 -65z" fill="#BE8461" opacity=".55"/>
+<ellipse cx="81" cy="106" rx="6" ry="9" fill="#DDA582"/><ellipse cx="159" cy="106" rx="6" ry="9" fill="#BE8461"/>
+<path d="M81 92c0-26 16-40 40-40s40 14 38 40c-8-14-22-20-38-20s-30 6-40 20z" fill="#6F6A66"/>
+<path d="M82 108c-2 24 10 50 38 50s40-26 38-50c-6 12-14 18-22 18-10-6-26-6-34 0-8 0-16-6-20-18z" fill="#6F6A66"/>
+<path d="M104 130q16-8 32 0q-6 8-16 8t-16-8z" fill="#BE8461" opacity="0"/>
+<path d="M120 144c12 0 22-6 28-18-8 8-20 6-28 4-8 2-20 4-28-4 6 12 16 18 28 18z" fill="#D8D2C8" opacity=".55"/>
+<path d="M108 131q12-5 24 0" fill="none" stroke="#EFE8DA" stroke-width="3" stroke-linecap="round" opacity="0"/>
+<path d="M109 132q11 5 22 0" fill="none" stroke="#F2ECE0" stroke-width="3.4" stroke-linecap="round"/>
+<ellipse cx="105" cy="103" rx="3.2" ry="3.8" fill="#2A2220"/><ellipse cx="135" cy="103" rx="3.2" ry="3.8" fill="#2A2220"/><path d="M96 90q9 -5 17 -1" fill="none" stroke="#4D4743" stroke-width="4" stroke-linecap="round"/><path d="M127 86q9 -4 17 1" fill="none" stroke="#4D4743" stroke-width="4" stroke-linecap="round"/><path d="M121 108q-4 11 -8 14q5 4 11 1" fill="none" stroke="#BE8461" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M80 100l-4 10M160 100l4 10" stroke="#BE8461" stroke-width="0"/></g>
+<rect width="240" height="240" fill="url(#g)"/></g></svg>

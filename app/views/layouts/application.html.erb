@@ -16,7 +16,8 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body<% if content_for?(:character) %> data-character="<%= yield(:character) %>"<% end %>>
+    <% unless content_for?(:no_bar) %>
     <header class="bar">
       <a href="<%= root_path %>" aria-label="Alcove, home"><%= image_tag "logo.svg", alt: "Alcove", class: "bar__logo", width: 120, height: 34 %></a>
       <nav class="bar__nav" aria-label="Main">
@@ -34,6 +35,8 @@
         <% end %>
       </nav>
     </header>
+    <% end %>
+    <% if content_for?(:no_bar) && current_user %><%= turbo_stream_from current_user %><% end %>
 
     <main id="main">
       <% if notice %><p class="flash" role="status"><%= notice %></p><% end %>

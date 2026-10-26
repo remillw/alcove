@@ -1,17 +1,18 @@
 <% content_for :title, "#{@character.name}, #{@character.role}" %>
+<% content_for :character, @character.slug %>
 <% content_for :description, "#{@character.name}, #{@character.role}: #{@character.tagline}" %>
 <div class="stage">
   <article class="dossier">
     <div class="dossier__aside">
       <div class="dossier__head">
-        <%= render "shared/avatar", character: @character, size: "lg" %>
+        <%= render "shared/portrait", character: @character, size: 160, loading: "eager" %>
         <div>
           <h1 class="dossier__name"><%= @character.name %></h1>
           <p class="dossier__role"><%= @character.role %></p>
         </div>
       </div>
       <% if @conversation %>
-        <%= link_to "Continue the conversation", conversation_path(@conversation), class: "btn btn--primary" %>
+        <%= link_to "Continue the conversation", conversation_path(@conversation), class: "btn btn--accent" %>
       <% else %>
         <%= form_with url: conversation_character_path(@character), class: "start" do |f| %>
           <% unless current_user&.adult? %>
@@ -20,7 +21,7 @@
               <span>I'm 18 or older, and I understand <%= @character.first_name %> is an AI character, not a real person.</span>
             </label>
           <% end %>
-          <%= f.button "Start talking to #{@character.first_name}", class: "btn btn--primary" %>
+          <%= f.button "Start talking to #{@character.first_name}", class: "btn btn--accent" %>
           <p class="field__hint">Your first <%= User::GUEST_CREDITS %> replies are free, no account needed.</p>
         <% end %>
       <% end %>

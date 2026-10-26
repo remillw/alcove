@@ -1,0 +1,6 @@
+<% chips = conversation.messages.where(role: "user").exists? ? conversation.suggestions : conversation.character.starters %>
+<div id="suggestions" class="chips" data-controller="chips">
+  <% Array(chips).first(3).each do |chip| %>
+    <button type="button" class="chip" data-action="chips#send"><%= chip %></button>
+  <% end %>
+</div>

@@ -1,46 +1,53 @@
-<% content_for :title, @conversation.character.name %>
-<% content_for :no_footer, true %>
 <% character = @conversation.character %>
+<% content_for :title, character.name %>
+<% content_for :no_footer, true %>
+<% content_for :no_bar, true %>
+<% content_for :character, character.slug %>
 <%= turbo_stream_from @conversation %>
-<section class="scene" aria-label="Conversation with <%= character.name %>">
-  <header class="scene__head">
-    <%= render "shared/avatar", character:, size: "sm" %>
-    <div class="scene__who">
+<div class="chat" data-controller="drawer">
+  <header class="chat-head">
+    <%= link_to root_path, class: "chat-head__back", "aria-label": "All characters" do %>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    <% end %>
+    <span class="presence"><%= render "shared/portrait", character:, size: 40, loading: "eager" %></span>
+    <div class="chat-head__who">
       <h1><%= character.name %></h1>
-      <p><%= character.role %> · AI character</p>
+      <p><span class="chat-head__status"><%= character.status_now %></span> · AI character</p>
     </div>
-    <div class="scene__tools" data-controller="dialog">
-      <button type="button" class="btn btn--quiet" data-action="dialog#open" aria-haspopup="dialog">Notebook</button>
-      <dialog class="notebook" data-dialog-target="dialog" aria-labelledby="notebook-title">
-        <div class="notebook__head">
-          <h2 id="notebook-title"><%= character.first_name %>'s notebook</h2>
-          <button type="button" class="btn btn--quiet" data-action="dialog#close">Close</button>
-        </div>
-        <div class="notebook__body">
-          <p class="notebook__intro">What <%= character.first_name %> remembers about you. Forget anything you'd rather they didn't keep.</p>
-          <% if @conversation.summary.present? %><p class="muted"><em><%= @conversation.summary %></em></p><% end %>
-          <ul class="memo" id="memories">
-            <% @conversation.memories.order(id: :desc).each do |memory| %>
-              <li id="<%= dom_id(memory) %>">
-                <span><%= memory.fact %></span>
-                <%= button_to "Forget", memory_path(memory), method: :delete, class: "memo__forget", form: { data: { turbo_confirm: "Forget this?" } } %>
-              </li>
-            <% end %>
-          </ul>
-          <% if @conversation.memories.none? %><p class="muted">Nothing yet. <%= character.first_name %> starts taking notes after a few exchanges.</p><% end %>
-          <%= button_to "Delete this conversation and all memories", conversation_path(@conversation), method: :delete,
-                class: "btn btn--quiet btn--danger", form: { data: { turbo_confirm: "Delete the whole conversation with #{character.first_name}? This can't be undone." } } %>
-        </div>
-      </dialog>
-    </div>
+    <%= render "shared/credits", user: current_user if current_user.credit_balance <= 3 %>
+    <button type="button" class="chat-head__keep" data-action="drawer#toggle" aria-controls="keepsake-panel" aria-expanded="false" data-drawer-target="button">
+      <span class="long"><%= character.keepsake_name %></span><span class="short"><%= character.keepsake_short %></span><span id="keepsake_badge"></span>
+    </button>
   </header>
 
-  <div>
-    <p class="notice">You're chatting with an AI character, not a real person. It can be wrong, and it can't give medical, legal or financial advice.</p>
+  <main class="chat-main">
     <div class="log" id="log" role="log" aria-live="polite" aria-relevant="additions" data-controller="scroll">
-      <%= render partial: "messages/message", collection: @messages, as: :message %>
+      <p class="chat-notice">You're talking with an AI character, not a real person. It can be wrong, and it can't give medical, legal or financial advice.</p>
+      <% @messages.each do |message| %>
+        <%= render "messages/message", message: %>
+      <% end %>
     </div>
-  </div>
+    <div class="chat-foot">
+      <%= render "messages/suggestions", conversation: @conversation %>
+      <%= render "messages/composer", conversation: @conversation, error: nil %>
+    </div>
+  </main>
 
-  <%= render "messages/composer", conversation: @conversation, error: nil %>
-</section>
+  <aside id="keepsake-panel" class="panel-side" data-drawer-target="panel" aria-label="<%= character.keepsake_name %> and notebook">
+    <div class="panel-side__grip" data-action="click->drawer#toggle" aria-hidden="true"></div>
+    <%= render "keepsakes/keepsake", conversation: @conversation %>
+    <section class="known">
+      <h2>What <%= character.first_name %> knows about you</h2>
+      <% if @conversation.summary.present? %><p class="known__summary"><%= @conversation.summary %></p><% end %>
+      <ul class="memo" id="memories" role="list">
+        <% @conversation.memories.order(id: :desc).each do |memory| %>
+          <li id="<%= dom_id(memory) %>"><span><%= memory.fact %></span>
+            <%= button_to "Forget", memory_path(memory), method: :delete, class: "memo__forget", form: { data: { turbo_confirm: "Forget this?" } } %></li>
+        <% end %>
+      </ul>
+      <% if @conversation.memories.none? && @conversation.summary.blank? %><p class="muted small">Nothing yet. <%= character.first_name %> starts keeping notes after a few exchanges, and you can make them forget anything.</p><% end %>
+      <%= button_to "Delete this conversation", conversation_path(@conversation), method: :delete, class: "link-danger",
+            form: { data: { turbo_confirm: "Delete the whole conversation with #{character.first_name}, and everything they keep about you?" } } %>
+    </section>
+  </aside>
+</div>

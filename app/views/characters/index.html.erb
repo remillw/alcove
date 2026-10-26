@@ -1,30 +1,76 @@
-<div class="stage">
-  <section class="hero">
-    <p class="eyebrow">Original characters · Free to try</p>
-    <h1 class="hero__title">Characters who <em>remember</em> you.</h1>
-    <p class="hero__lead">A librarian who knows your taste, a cook who works with what's left in your fridge, a detective with a case for you. Pick someone and say hello. No account needed for the first messages.</p>
+<% adult = current_user&.adult? %>
+<div class="home" data-controller="gate" data-gate-adult-value="<%= adult ? 1 : 0 %>">
+  <section class="home-hero">
+    <p class="eyebrow">Six original characters · free to try</p>
+    <h1 class="hero__title">Someone who <em>remembers</em> you.</h1>
+    <p class="hero__lead">A librarian who knows your taste, a cook who works with what's left in your fridge, a detective with a case for you. They keep what matters, and pick up where you left off.</p>
   </section>
 
-  <ul class="cast" role="list">
-    <% @characters.each do |character| %>
-      <li class="card">
-        <%= render "shared/avatar", character: %>
-        <div>
-          <h2 class="card__name"><%= link_to character.name, character_path(character) %></h2>
-          <p class="card__role"><%= character.role %></p>
+  <section class="spotlight-wrap" aria-label="A glimpse of a conversation" data-controller="spotlight">
+    <% @characters.each_with_index do |character, i| %>
+      <article class="spotlight" data-character="<%= character.slug %>" data-spotlight-target="slide" <%= "hidden" unless i.zero? %>>
+        <header class="spotlight__head">
+          <span class="presence"><%= render "shared/portrait", character:, size: 44, loading: i.zero? ? "eager" : "lazy" %></span>
+          <div><p class="spotlight__name"><%= character.name %></p><p class="spotlight__status"><%= character.status_now %></p></div>
+        </header>
+        <div class="spotlight__log">
+          <% character.showcase.each do |who, line| %>
+            <p class="msg <%= who == "user" ? "msg--me" : "msg--them" %>"><span class="msg__text"><%= sanitize(line.gsub(/\*(.+?)\*/, '<em>\1</em>'), tags: %w[em]) %></span></p>
+          <% end %>
         </div>
-        <p class="card__tag">“<%= character.tagline %>”</p>
-        <div class="card__foot">
-          <ul class="traits"><% character.traits.each do |trait| %><li><%= trait %></li><% end %></ul>
-          <% if @conversations[character.id] %><span class="card__ongoing">Ongoing</span><% end %>
-        </div>
-      </li>
+        <%= form_with url: conversation_character_path(character), class: "spotlight__go", data: { action: "submit->gate#check" } do %>
+          <%= hidden_field_tag :adult, adult ? "1" : "", data: { gate_target: "adult" } %>
+          <button class="btn btn--accent">Talk to <%= character.first_name %></button>
+        <% end %>
+      </article>
     <% end %>
-  </ul>
+  </section>
+
+  <nav class="rail" aria-label="Characters">
+    <% @characters.each do |character| %>
+      <%= link_to character_path(character), class: "rail__item", data: { character: character.slug } do %>
+        <%= render "shared/portrait", character:, size: 64 %>
+        <span><%= character.first_name %></span>
+      <% end %>
+    <% end %>
+  </nav>
+
+  <section class="cast-v2" aria-label="Meet them">
+    <% @characters.each do |character| %>
+      <article class="band" data-character="<%= character.slug %>">
+        <%= render "shared/portrait", character:, size: 88 %>
+        <div class="band__body">
+          <h2 class="band__name"><%= link_to character.name, character_path(character) %></h2>
+          <p class="band__role"><%= character.role %> · <span class="band__status"><%= character.status_now %></span></p>
+          <p class="band__line">“<%= character.tagline %>”</p>
+          <div class="band__actions">
+            <% if (conversation = @conversations[character.id]) %>
+              <%= link_to "Continue with #{character.first_name}", conversation_path(conversation), class: "btn btn--accent" %>
+            <% else %>
+              <%= form_with url: conversation_character_path(character), data: { action: "submit->gate#check" } do %>
+                <%= hidden_field_tag :adult, adult ? "1" : "", data: { gate_target: "adult" } %>
+                <button class="btn btn--accent">Talk to <%= character.first_name %></button>
+              <% end %>
+            <% end %>
+            <%= link_to "About #{character.first_name}", character_path(character), class: "btn btn--quiet" %>
+          </div>
+        </div>
+      </article>
+    <% end %>
+  </section>
 
   <section class="how" aria-label="How Alcove works">
-    <div><h2>They remember</h2><p>Each character keeps a small notebook about you. You can read it, and you can make them forget anything.</p></div>
+    <div><h2>They remember</h2><p>Each character keeps something for you: a reading pile, a case file, your French corrections. You can read it all, and make them forget anything.</p></div>
     <div><h2>They stay themselves</h2><p>Written personalities, voices and limits. No content for adults, no guilt trips when you leave.</p></div>
     <div><h2>Clear pricing</h2><p>One credit per reply. Your first replies are free, and members get credits topped up every day.</p></div>
   </section>
+
+  <dialog class="gate" data-gate-target="dialog" aria-labelledby="gate-title">
+    <form method="dialog" class="gate__form" data-action="submit->gate#confirm">
+      <h2 id="gate-title">Before you start</h2>
+      <p>Alcove's characters are AI, not real people. They can be wrong, and they can't give medical, legal or financial advice.</p>
+      <label class="check"><input type="checkbox" required data-gate-target="box"> <span>I'm 18 or older, and I understand I'm talking to AI characters.</span></label>
+      <div class="row"><button class="btn btn--primary">Start</button><button type="button" class="btn btn--quiet" data-action="gate#cancel">Not now</button></div>
+    </form>
+  </dialog>
 </div>

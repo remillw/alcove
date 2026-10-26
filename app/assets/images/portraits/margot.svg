@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="t"><title id="t">Margot Dubreuil</title>
+<defs><clipPath id="c"><circle cx="120" cy="120" r="120"/></clipPath>
+<pattern id="g" width="30" height="30" patternUnits="userSpaceOnUse"><g fill="#000" opacity=".09"><circle cx="3" cy="5" r=".9"/><circle cx="14" cy="2" r=".7"/><circle cx="24" cy="9" r="1"/><circle cx="9" cy="16" r=".8"/><circle cx="20" cy="21" r=".9"/><circle cx="28" cy="27" r=".7"/><circle cx="5" cy="26" r="1"/><circle cx="15" cy="11" r=".6"/></g><g fill="#fff" opacity=".12"><circle cx="8" cy="9" r=".8"/><circle cx="19" cy="15" r=".7"/><circle cx="26" cy="19" r=".9"/><circle cx="12" cy="24" r=".7"/><circle cx="2" cy="17" r=".6"/></g></pattern></defs>
+<g clip-path="url(#c)"><rect width="240" height="240" fill="#C49A9A"/>
+<g transform="translate(-12 -22) scale(1.1)"><path d="M26 240c2-36 30-58 76-66h36c46 8 74 30 76 66z" fill="#5B3A4A"/>
+<path d="M160 240c-6-24-8-44-24-64l36 8c18 10 34 30 40 56z" fill="#000" opacity=".16"/>
+<path d="M62 120c-8-50 12-76 58-76 48 0 66 30 58 76 2 22-6 36-14 42H76c-8-6-16-20-14-42z" fill="#A9AFB4"/>
+<path d="M62 120c-8-50 12-74 58-74 46 0 62 26 56 70-4 24-10 34-16 46H78c-8-12-14-22-16-42z" fill="#D4D6D6"/>
+<path d="M103 130h34v46H103z" fill="#EBC1A0"/><path d="M103 150q17 14 34 0v-20h-34z" fill="#CF9C7C"/>
+<ellipse cx="120" cy="104" rx="37" ry="44" fill="#EBC1A0"/>
+<path d="M133 62q33 35 4 68q-14 9 -18 4q18 -40 11 -64z" fill="#CF9C7C" opacity=".55"/>
+<ellipse cx="83" cy="108" rx="6" ry="9" fill="#EBC1A0"/><ellipse cx="157" cy="108" rx="6" ry="9" fill="#CF9C7C"/>
+<path d="M80 100c0-30 16-46 42-46 22 0 38 14 38 40-8-20-18-28-34-28-18 0-34 10-46 34z" fill="#D4D6D6"/>
+<path d="M84 96c-2 30 6 44 12 52l-10 4c-8-12-14-30-2-56zM156 96c2 30-6 44-12 52l10 4c8-12 14-30 2-56z" fill="#D4D6D6" opacity="0"/>
+<path d="M82 168c10 16 24 22 38 22s28-6 38-22l12 10c-10 22-30 34-50 34s-40-12-50-34z" fill="#2F6F6A"/>
+<g fill="#EFE8DA"><circle cx="100" cy="200" r="2.6"/><circle cx="120" cy="206" r="2.6"/><circle cx="140" cy="200" r="2.6"/><circle cx="88" cy="190" r="2.6"/><circle cx="152" cy="190" r="2.6"/></g>
+<ellipse cx="105" cy="104" rx="3.2" ry="3.8" fill="#2A2220"/><ellipse cx="135" cy="104" rx="3.2" ry="3.8" fill="#2A2220"/><path d="M96 91q9 -5 17 -1" fill="none" stroke="#A9AFB4" stroke-width="3.4" stroke-linecap="round"/><path d="M127 87q9 -4 17 1" fill="none" stroke="#A9AFB4" stroke-width="3.4" stroke-linecap="round"/><path d="M121 108q-4 11 -8 14q5 4 11 1" fill="none" stroke="#CF9C7C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M104 126q16 12 32 -4" fill="none" stroke="#B4505A" stroke-width="3.6" stroke-linecap="round"/><path d="M137 121q3 0 4 -3" fill="none" stroke="#CF9C7C" stroke-width="2.4" stroke-linecap="round"/>
+<ellipse cx="97" cy="121" rx="6" ry="4" fill="#D9826B" opacity=".3"/>
+<ellipse cx="168" cy="226" rx="42" ry="7" fill="#EFE8DA"/><path d="M138 192h54v10c0 16-12 26-27 26s-27-10-27-26z" fill="#EFE8DA"/><path d="M138 192h54v7h-54z" fill="#4B2F25"/><path d="M192 198c12 0 14 16 0 19" fill="none" stroke="#EFE8DA" stroke-width="4"/>
+<path d="M162 186q-5-8 0-14M174 186q-5-8 0-14" fill="none" stroke="#EFE8DA" stroke-width="2.6" stroke-linecap="round" opacity=".8"/></g>
+<rect width="240" height="240" fill="url(#g)"/></g></svg>
