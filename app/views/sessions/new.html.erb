@@ -1,18 +1,18 @@
-<% content_for :title, "Log in" %>
+<% content_for :title, t("site.log_in") %>
 <div class="stage stage--narrow">
   <section class="panel">
-    <h1>Welcome back</h1>
+    <h1><%= t(".title") %></h1>
     <%= form_with url: session_path, class: "form" do |f| %>
       <div class="field">
-        <%= f.label :email_address, "Email", class: "field__label" %>
+        <%= f.label :email_address, t(".email"), class: "field__label" %>
         <%= f.email_field :email_address, class: "input", required: true, autofocus: true, autocomplete: "username", value: params[:email_address] %>
       </div>
       <div class="field">
-        <%= f.label :password, "Password", class: "field__label" %>
+        <%= f.label :password, t(".password"), class: "field__label" %>
         <%= f.password_field :password, class: "input", required: true, autocomplete: "current-password", maxlength: 72 %>
       </div>
-      <%= f.button "Log in", class: "btn btn--primary" %>
+      <%= f.button t(".submit"), class: "btn btn--primary" %>
     <% end %>
-    <p class="muted">New here? <%= link_to "Create an account", new_registration_path %>. Forgot your password? Write to <a href="mailto:contact@victoire-digital.fr">contact@victoire-digital.fr</a>.</p>
+    <p class="muted"><%= t(".new_here_html", link: link_to(t(".create"), new_registration_path), email: mail_to("contact@victoire-digital.fr")) %></p>
   </section>
 </div>

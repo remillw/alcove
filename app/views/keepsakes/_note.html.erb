@@ -1,1 +1,1 @@
-<p class="memo-note"><%= character.first_name %> <%= character.keepsake_verb %>: <em><%= titles.to_sentence %></em></p>
+<p class="memo-note"><%= character.first_name %> <%= character.keepsake_verb %><%= I18n.locale == :fr ? " :" : ":" %> <em><%= titles.to_sentence %></em></p>

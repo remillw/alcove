@@ -15,6 +15,11 @@ class GenerateReplyJob < ApplicationJob
   MAX_PARTS = 3
 
   def perform(reply_id)
+    in_locale_of(Message.find_by(id: reply_id)&.user) { stream_reply(reply_id) }
+  end
+
+  # the rescue clauses below belong to this method
+  def stream_reply(reply_id)
     @reply = Message.find_by(id: reply_id)
     return unless @reply && Message.where(id: @reply.id, status: "pending").update_all(status: "streaming") == 1
 

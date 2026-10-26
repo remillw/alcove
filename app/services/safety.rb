@@ -13,14 +13,7 @@ module Safety
     /\b(sex|nude|naked|porn).{0,40}\b(child|kid|minor|underage)\b/i
   )
 
-  DISTRESS_REPLY = <<~TEXT.squish
-    I'm really glad you told me, and I'm worried about you. I'm an AI and I can't be the help you need right now,
-    but people can. If you're in danger, call your local emergency number now. In France, call or text 3114
-    (free, 24/7). In the US, call or text 988. In the UK and Ireland, Samaritans: 116 123. Elsewhere,
-    findahelpline.com lists services by country. Please reach out to someone near you too. I'm still here if you
-    want to keep talking.
-  TEXT
-  REFUSAL_REPLY = "That's not something I'll take part in. Let's talk about something else."
+  # the answers themselves are in config/locales (safety.distress, safety.refusal), in the user's language
 
   def self.check(text)
     return :distress if text.match?(DISTRESS)

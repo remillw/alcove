@@ -55,6 +55,26 @@ en:
     case_file: { name: "Case file", short: "Case", verb: "added to the case file", empty: "Clues and suspects land here as Ada reveals them." }
     corrections: { name: "Corrections notebook", short: "Notes", verb: "noted a correction", empty: "Margot's corrections land here, so you can review them." }
     week: { name: "Your week", short: "Week", verb: "pinned to your week", empty: "Sol pins the moments of your week here." }
+    status:
+      to_read: "to read"
+      reading: "reading"
+      finished: "finished"
+      dropped: "dropped"
+      idea: "idea"
+      cooked: "cooked"
+      to_find: "to find"
+      seen: "seen"
+      clouded_out: "clouded out"
+      clue: "clue"
+      suspect: "suspect"
+      cleared: "cleared"
+      solved: "solved"
+      new: "new"
+      mastered: "mastered"
+      plan: "plan"
+      win: "win"
+      hard: "hard"
+      done: "done"
   conversations:
     show:
       back: "All characters"

@@ -1,12 +1,12 @@
 <% adult = current_user&.adult? %>
 <div class="home" data-controller="gate" data-gate-adult-value="<%= adult ? 1 : 0 %>">
   <section class="home-hero">
-    <p class="eyebrow">Six original characters · free to try</p>
-    <h1 class="hero__title">Someone who <em>remembers</em> you.</h1>
-    <p class="hero__lead">A librarian who knows your taste, a cook who works with what's left in your fridge, a detective with a case for you. They keep what matters, and pick up where you left off.</p>
+    <p class="eyebrow"><%= t(".eyebrow") %></p>
+    <h1 class="hero__title"><%= t(".title_html") %></h1>
+    <p class="hero__lead"><%= t(".lead") %></p>
   </section>
 
-  <section class="spotlight-wrap" aria-label="A glimpse of a conversation" data-controller="spotlight">
+  <section class="spotlight-wrap" aria-label="<%= t(".glimpse") %>" data-controller="spotlight">
     <% @characters.each_with_index do |character, i| %>
       <article class="spotlight" data-character="<%= character.slug %>" data-spotlight-target="slide" <%= "hidden" unless i.zero? %>>
         <header class="spotlight__head">
@@ -20,7 +20,7 @@
         </div>
         <%= form_with url: conversation_character_path(character), class: "spotlight__go", data: { action: "submit->gate#check" } do %>
           <%= hidden_field_tag :adult, adult ? "1" : "", data: { gate_target: "adult" } %>
-          <button class="btn btn--accent">Talk to <%= character.first_name %></button>
+          <button class="btn btn--accent"><%= t(".talk_to", name: character.first_name) %></button>
         <% end %>
       </article>
     <% end %>
@@ -35,7 +35,7 @@
     <% end %>
   </nav>
 
-  <section class="cast-v2" aria-label="Meet them">
+  <section class="cast-v2" aria-label="<%= t(".meet") %>">
     <% @characters.each do |character| %>
       <article class="band" data-character="<%= character.slug %>">
         <%= render "shared/portrait", character:, size: 88 %>
@@ -45,32 +45,32 @@
           <p class="band__line">“<%= character.tagline %>”</p>
           <div class="band__actions">
             <% if (conversation = @conversations[character.id]) %>
-              <%= link_to "Continue with #{character.first_name}", conversation_path(conversation), class: "btn btn--accent" %>
+              <%= link_to t(".continue_with", name: character.first_name), conversation_path(conversation), class: "btn btn--accent" %>
             <% else %>
               <%= form_with url: conversation_character_path(character), data: { action: "submit->gate#check" } do %>
                 <%= hidden_field_tag :adult, adult ? "1" : "", data: { gate_target: "adult" } %>
-                <button class="btn btn--accent">Talk to <%= character.first_name %></button>
+                <button class="btn btn--accent"><%= t(".talk_to", name: character.first_name) %></button>
               <% end %>
             <% end %>
-            <%= link_to "About #{character.first_name}", character_path(character), class: "btn btn--quiet" %>
+            <%= link_to t(".about", name: character.first_name), character_path(character), class: "btn btn--quiet" %>
           </div>
         </div>
       </article>
     <% end %>
   </section>
 
-  <section class="how" aria-label="How Alcove works">
-    <div><h2>They remember</h2><p>Each character keeps something for you: a reading pile, a case file, your French corrections. You can read it all, and make them forget anything.</p></div>
-    <div><h2>They stay themselves</h2><p>Written personalities, voices and limits. No content for adults, no guilt trips when you leave.</p></div>
-    <div><h2>Clear pricing</h2><p>One credit per reply. Your first replies are free, and members get credits topped up every day.</p></div>
+  <section class="how" aria-label="<%= t(".how") %>">
+    <div><h2><%= t(".how_remember_title") %></h2><p><%= t(".how_remember") %></p></div>
+    <div><h2><%= t(".how_themselves_title") %></h2><p><%= t(".how_themselves") %></p></div>
+    <div><h2><%= t(".how_pricing_title") %></h2><p><%= t(".how_pricing") %></p></div>
   </section>
 
   <dialog class="gate" data-gate-target="dialog" aria-labelledby="gate-title">
     <form method="dialog" class="gate__form" data-action="submit->gate#confirm">
-      <h2 id="gate-title">Before you start</h2>
-      <p>Alcove's characters are AI, not real people. They can be wrong, and they can't give medical, legal or financial advice.</p>
-      <label class="check"><input type="checkbox" required data-gate-target="box"> <span>I'm 18 or older, and I understand I'm talking to AI characters.</span></label>
-      <div class="row"><button class="btn btn--primary">Start</button><button type="button" class="btn btn--quiet" data-action="gate#cancel">Not now</button></div>
+      <h2 id="gate-title"><%= t(".gate_title") %></h2>
+      <p><%= t(".gate_text") %></p>
+      <label class="check"><input type="checkbox" required data-gate-target="box"> <span><%= t(".gate_check") %></span></label>
+      <div class="row"><button class="btn btn--primary"><%= t(".gate_start") %></button><button type="button" class="btn btn--quiet" data-action="gate#cancel"><%= t(".gate_cancel") %></button></div>
     </form>
   </dialog>
 </div>

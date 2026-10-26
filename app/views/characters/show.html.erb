@@ -12,17 +12,17 @@
         </div>
       </div>
       <% if @conversation %>
-        <%= link_to "Continue the conversation", conversation_path(@conversation), class: "btn btn--accent" %>
+        <%= link_to t(".continue"), conversation_path(@conversation), class: "btn btn--accent" %>
       <% else %>
         <%= form_with url: conversation_character_path(@character), class: "start" do |f| %>
           <% unless current_user&.adult? %>
             <label class="check">
               <%= check_box_tag :adult, "1", false, required: true %>
-              <span>I'm 18 or older, and I understand <%= @character.first_name %> is an AI character, not a real person.</span>
+              <span><%= t(".adult_html", name: @character.first_name) %></span>
             </label>
           <% end %>
-          <%= f.button "Start talking to #{@character.first_name}", class: "btn btn--accent" %>
-          <p class="field__hint">Your first <%= User::GUEST_CREDITS %> replies are free, no account needed.</p>
+          <%= f.button t(".start", name: @character.first_name), class: "btn btn--accent" %>
+          <p class="field__hint"><%= t(".free", count: User::GUEST_CREDITS) %></p>
         <% end %>
       <% end %>
     </div>
@@ -31,15 +31,15 @@
       <p class="dossier__quote">“<%= @character.tagline %>”</p>
       <dl class="sheet sheet--spaced">
         <div>
-          <dt>Who they are</dt>
-          <dd><%= @character.persona.squish %></dd>
+          <dt><%= t(".who") %></dt>
+          <dd><%= @character.bio %></dd>
         </div>
         <div>
-          <dt>How they talk</dt>
+          <dt><%= t(".how_talk") %></dt>
           <% @character.sample_lines.each do |line| %><dd><em>“<%= line %>”</em></dd><% end %>
         </div>
         <div>
-          <dt>What they won't do</dt>
+          <dt><%= t(".wont") %></dt>
           <dd><%= @character.boundaries %></dd>
         </div>
       </dl>

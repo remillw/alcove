@@ -17,7 +17,7 @@ class ConversationsController < ApplicationController
   def create
     character = Character.published.find_by!(slug: params[:id])
     unless params[:adult] == "1" || current_user_adult?
-      return redirect_to character_path(character), alert: "Please confirm you're 18 or older to start."
+      return redirect_to character_path(character), alert: t("conversations.confirm_age")
     end
 
     user = ensure_user!
@@ -29,7 +29,7 @@ class ConversationsController < ApplicationController
 
   def destroy
     @conversation.destroy!
-    redirect_to conversations_path, notice: "Conversation and memories deleted.", status: :see_other
+    redirect_to conversations_path, notice: t("conversations.deleted"), status: :see_other
   end
 
   private

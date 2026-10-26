@@ -32,6 +32,6 @@ class ApplicationController < ActionController::Base
   end
 
   def require_user
-    resume_session || redirect_to(root_path, alert: "Pick a character to start a conversation.")
+    resume_session || redirect_to(root_path, alert: t("pick_character"))
   end
 end

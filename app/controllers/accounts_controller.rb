@@ -14,6 +14,6 @@ class AccountsController < ApplicationController
   def destroy
     current_user.destroy!
     cookies.delete(:session_id)
-    redirect_to root_path, notice: "Your account and all your conversations have been deleted.", status: :see_other
+    redirect_to root_path, notice: t("accounts.deleted"), status: :see_other
   end
 end

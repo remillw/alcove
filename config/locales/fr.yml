@@ -55,6 +55,26 @@ fr:
     case_file: { name: "Dossier d'enquête", short: "Dossier", verb: "a ajouté au dossier", empty: "Les indices et les suspects arrivent ici, au fil de ce qu'Ada révèle." }
     corrections: { name: "Carnet de corrections", short: "Carnet", verb: "a noté une correction", empty: "Les corrections de Margot arrivent ici, pour les revoir." }
     week: { name: "Ta semaine", short: "Semaine", verb: "a épinglé à ta semaine", empty: "Sol épingle ici les moments de ta semaine." }
+    status:
+      to_read: "à lire"
+      reading: "en cours"
+      finished: "lu"
+      dropped: "abandonné"
+      idea: "idée"
+      cooked: "cuisiné"
+      to_find: "à trouver"
+      seen: "vu"
+      clouded_out: "nuageux"
+      clue: "indice"
+      suspect: "suspect"
+      cleared: "innocenté"
+      solved: "résolu"
+      new: "nouveau"
+      mastered: "maîtrisé"
+      plan: "prévu"
+      win: "victoire"
+      hard: "dur"
+      done: "fait"
   conversations:
     show:
       back: "Tous les personnages"

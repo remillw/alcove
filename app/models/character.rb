@@ -19,6 +19,9 @@ class Character < ApplicationRecord
     end
   end
 
+  # public biography (the persona is the model's brief, in English and second person: never shown)
+  def bio = translations.dig(I18n.locale.to_s, "bio").presence || translations.dig("en", "bio").presence || tagline
+
   KEEPSAKES = {
     "reading_pile" => { name: "Reading pile", short: "Pile", verb: "added to your pile" },
     "recipe_cards" => { name: "Recipe cards", short: "Recipes", verb: "wrote a recipe card" },

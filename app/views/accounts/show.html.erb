@@ -1,17 +1,17 @@
-<% content_for :title, "Account" %>
+<% content_for :title, t("site.account") %>
 <div class="stage stage--narrow stack">
   <section class="panel">
-    <p class="eyebrow">Credits</p>
+    <p class="eyebrow"><%= t(".credits") %></p>
     <p class="balance"><%= current_user.credit_balance %></p>
-    <p class="muted">One credit per reply. Topped up to <%= DailyCredits::DAILY_FLOOR %> every day for free. Paid plans are coming soon.</p>
+    <p class="muted"><%= t(".credits_text", count: DailyCredits::DAILY_FLOOR) %></p>
     <% if @entries.any? %>
       <table class="ledger">
-        <thead><tr><th>Date</th><th>Movement</th><th>Credits</th></tr></thead>
+        <thead><tr><th><%= t(".date") %></th><th><%= t(".movement") %></th><th><%= t(".credits") %></th></tr></thead>
         <tbody>
           <% @entries.each do |entry| %>
             <tr>
               <td><%= l entry.created_at, format: :short %></td>
-              <td><%= { "grant" => "Free credits", "reserve" => "Reply", "release" => "Refund (reply failed)", "purchase" => "Purchase", "adjustment" => "Adjustment" }[entry.kind] %></td>
+              <td><%= t(".kinds.#{entry.kind}") %></td>
               <td><%= entry.amount.positive? ? "+#{entry.amount}" : entry.amount %></td>
             </tr>
           <% end %>
@@ -21,17 +21,17 @@
   </section>
 
   <section class="panel">
-    <p class="eyebrow">Account</p>
-    <p><%= current_user.display_name.presence || "No name set" %> · <%= current_user.email_address %></p>
+    <p class="eyebrow"><%= t(".account") %></p>
+    <p><%= current_user.display_name.presence || t(".no_name") %> · <%= current_user.email_address %></p>
     <div class="row">
-      <%= link_to "Download my data", export_account_path, class: "btn" %>
-      <%= button_to "Log out", session_path, method: :delete, class: "btn btn--quiet" %>
+      <%= link_to t(".download"), export_account_path, class: "btn" %>
+      <%= button_to t(".log_out"), session_path, method: :delete, class: "btn btn--quiet" %>
     </div>
   </section>
 
   <section class="panel danger-zone">
-    <p class="eyebrow">Delete account</p>
-    <p class="muted">Deletes your account, every conversation and everything the characters remember. This can't be undone.</p>
-    <%= button_to "Delete my account", account_path, method: :delete, class: "btn btn--danger", form: { data: { turbo_confirm: "Delete your account and all your conversations for good?" } } %>
+    <p class="eyebrow"><%= t(".delete_title") %></p>
+    <p class="muted"><%= t(".delete_text") %></p>
+    <%= button_to t(".delete"), account_path, method: :delete, class: "btn btn--danger", form: { data: { turbo_confirm: t(".delete_confirm") } } %>
   </section>
 </div>

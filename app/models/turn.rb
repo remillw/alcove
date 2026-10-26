@@ -19,8 +19,8 @@ class Turn
     return Result.new(nil, nil, :busy) if @conversation.active_reply
 
     case Safety.check(@content)
-    when :distress then answer_directly(Safety::DISTRESS_REPLY, "distress")
-    when :forbidden then answer_directly(Safety::REFUSAL_REPLY, "blocked_input")
+    when :distress then answer_directly(I18n.t("safety.distress", locale: @user.locale), "distress")
+    when :forbidden then answer_directly(I18n.t("safety.refusal", locale: @user.locale), "blocked_input")
     else queue_reply
     end
   rescue Credits::InsufficientBalance

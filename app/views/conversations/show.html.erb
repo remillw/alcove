@@ -6,13 +6,13 @@
 <%= turbo_stream_from @conversation %>
 <div class="chat" data-controller="drawer">
   <header class="chat-head">
-    <%= link_to root_path, class: "chat-head__back", "aria-label": "All characters" do %>
+    <%= link_to root_path, class: "chat-head__back", "aria-label": t(".back") do %>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
     <% end %>
     <span class="presence"><%= render "shared/portrait", character:, size: 40, loading: "eager" %></span>
     <div class="chat-head__who">
       <h1><%= character.name %></h1>
-      <p><span class="chat-head__status"><%= character.status_now %></span> · AI character</p>
+      <p><span class="chat-head__status"><%= character.status_now %></span> · <%= t("site.ai_character") %></p>
     </div>
     <%= render "shared/credits", user: current_user if current_user.credit_balance <= 3 %>
     <button type="button" class="chat-head__keep" data-action="drawer#toggle" aria-controls="keepsake-panel" aria-expanded="false" data-drawer-target="button">
@@ -22,7 +22,7 @@
 
   <main class="chat-main">
     <div class="log" id="log" role="log" aria-live="polite" aria-relevant="additions" data-controller="scroll">
-      <p class="chat-notice">You're talking with an AI character, not a real person. It can be wrong, and it can't give medical, legal or financial advice.</p>
+      <p class="chat-notice"><%= t(".notice") %></p>
       <% @messages.each do |message| %>
         <%= render "messages/message", message: %>
       <% end %>
@@ -33,21 +33,21 @@
     </div>
   </main>
 
-  <aside id="keepsake-panel" class="panel-side" data-drawer-target="panel" aria-label="<%= character.keepsake_name %> and notebook">
+  <aside id="keepsake-panel" class="panel-side" data-drawer-target="panel" aria-label="<%= t(".panel_label", keepsake: character.keepsake_name) %>">
     <div class="panel-side__grip" data-action="click->drawer#toggle" aria-hidden="true"></div>
     <%= render "keepsakes/keepsake", conversation: @conversation %>
     <section class="known">
-      <h2>What <%= character.first_name %> knows about you</h2>
+      <h2><%= t(".knows", name: character.first_name) %></h2>
       <% if @conversation.summary.present? %><p class="known__summary"><%= @conversation.summary %></p><% end %>
       <ul class="memo" id="memories" role="list">
         <% @conversation.memories.order(id: :desc).each do |memory| %>
           <li id="<%= dom_id(memory) %>"><span><%= memory.fact %></span>
-            <%= button_to "Forget", memory_path(memory), method: :delete, class: "memo__forget", form: { data: { turbo_confirm: "Forget this?" } } %></li>
+            <%= button_to t(".forget"), memory_path(memory), method: :delete, class: "memo__forget", form: { data: { turbo_confirm: t(".forget_confirm") } } %></li>
         <% end %>
       </ul>
-      <% if @conversation.memories.none? && @conversation.summary.blank? %><p class="muted small">Nothing yet. <%= character.first_name %> starts keeping notes after a few exchanges, and you can make them forget anything.</p><% end %>
-      <%= button_to "Delete this conversation", conversation_path(@conversation), method: :delete, class: "link-danger",
-            form: { data: { turbo_confirm: "Delete the whole conversation with #{character.first_name}, and everything they keep about you?" } } %>
+      <% if @conversation.memories.none? && @conversation.summary.blank? %><p class="muted small"><%= t(".nothing_yet", name: character.first_name) %></p><% end %>
+      <%= button_to t(".delete"), conversation_path(@conversation), method: :delete, class: "link-danger",
+            form: { data: { turbo_confirm: t(".delete_confirm", name: character.first_name) } } %>
     </section>
   </aside>
 </div>

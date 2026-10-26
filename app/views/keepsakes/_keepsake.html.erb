@@ -3,7 +3,7 @@
 <section id="keepsake" class="keep keep--<%= character.keepsake.dasherize %>">
   <h2><%= character.keepsake_name %></h2>
   <% if items.empty? %>
-    <p class="muted small"><%= { "reading_pile" => "Books June suggests land here.", "recipe_cards" => "Theo's recipes for you land here.", "sky_log" => "What you find in the sky lands here.", "case_file" => "Clues and suspects land here as Ada reveals them.", "corrections" => "Margot's corrections land here, so you can review them.", "week" => "Sol pins the moments of your week here." }[character.keepsake] %></p>
+    <p class="muted small"><%= t("keepsakes.#{character.keepsake}.empty") %></p>
   <% else %>
     <ul class="keep__list" role="list">
       <% items.each do |item| %>
@@ -14,7 +14,7 @@
             <p class="keep__title"><%= item.title %></p>
             <% if item.detail.present? %><p class="keep__detail"><%= item.detail %></p><% end %>
           <% end %>
-          <p class="keep__meta"><% if item.status.present? %><span class="keep__status"><%= item.status.humanize.downcase %></span><% end %><% if item.note.present? %> <span><%= item.note %></span><% end %></p>
+          <p class="keep__meta"><% if item.status.present? %><span class="keep__status"><%= t("keepsakes.status.#{item.status.to_s.tr("-", "_")}", default: item.status.humanize.downcase) %></span><% end %><% if item.note.present? %> <span><%= item.note %></span><% end %></p>
         </li>
       <% end %>
     </ul>

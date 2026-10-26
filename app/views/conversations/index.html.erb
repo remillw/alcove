@@ -1,6 +1,6 @@
-<% content_for :title, "Conversations" %>
+<% content_for :title, t("site.conversations") %>
 <div class="stage stage--narrow">
-  <h1 class="page-title">Your conversations</h1>
+  <h1 class="page-title"><%= t(".title") %></h1>
   <% if @conversations.any? %>
     <ul class="list">
       <% @conversations.each do |conversation| %>
@@ -8,12 +8,12 @@
           <%= render "shared/portrait", character: conversation.character, size: 48 %>
           <div>
             <%= link_to conversation.character.name, conversation_path(conversation) %>
-            <p><%= conversation.character.role %><% if conversation.last_message_at %> · <%= time_ago_in_words(conversation.last_message_at) %> ago<% end %></p>
+            <p><%= conversation.character.role %><% if conversation.last_message_at %> · <%= t(".ago", time: time_ago_in_words(conversation.last_message_at)) %><% end %></p>
           </div>
         </li>
       <% end %>
     </ul>
   <% else %>
-    <p class="muted">No conversations yet. <%= link_to "Meet the characters", root_path %>.</p>
+    <p class="muted"><%= t(".none_html", link: link_to(t(".meet"), root_path)) %></p>
   <% end %>
 </div>

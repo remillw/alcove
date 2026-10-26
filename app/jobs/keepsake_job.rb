@@ -41,6 +41,10 @@ class KeepsakeJob < ApplicationJob
 
   def perform(reply_id)
     reply = Message.find_by(id: reply_id) or return
+    in_locale_of(reply.user) { keep(reply) }
+  end
+
+  def keep(reply)
     conversation = reply.conversation
     character = conversation.character
     guide = GUIDES[character.keepsake] or return
@@ -55,6 +59,7 @@ class KeepsakeJob < ApplicationJob
       output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
       system_: "You maintain #{character.name}'s #{character.keepsake_name.downcase} for one user. #{guide} " \
                "Only record what the latest exchange actually established. No change is a fine answer. " \
+               "Write title, detail and note in #{reply.user.locale == 'fr' ? 'French' : 'English'} (book and dish names as they are). Use the status words given, with underscores. " \
                "Suggestions: three things the user might naturally say next to #{character.first_name} in the conversation " \
                "(a reaction, a question, a move), in the user's language, under 40 characters each, different from each other. " \
                "Never app commands like 'show my list'.",
