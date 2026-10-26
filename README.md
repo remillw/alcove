@@ -95,12 +95,13 @@ CSRF protection is off for the webhook endpoint only (a provider has no session;
 ## Design decisions
 
 - **Credits are reserved before the call, refunded on failure.** Nobody is ever served on credit, and the race between tabs is settled before money is spent. The real cost (`cost_micros`, integers) is tracked separately for margins.
-- **Guests are real users.** A visitor gets a guest account on their first message (3 free replies, age confirmed). Signing up fills in the same row, so conversations and memories carry over with no merge logic.
+- **Guests are real users.** A visitor gets a guest account on their first message (10 free replies, age confirmed). Signing up fills in the same row, so conversations and memories carry over with no merge logic.
 - **Memory without vectors, for now.** Every 16 messages a background job folds the conversation into a summary and up to 5 facts, with structured output (JSON schema). The prompt gets the 15 most important facts. The `embedding vector(1024)` column and pgvector are in place for semantic recall later; today the bottleneck is streaming and credits, not retrieval.
 - **Prompt layout for caching.** Platform rules + character sheet come first and are marked `cache_control`: identical for every user of a character. Memory follows in a `<memory>` block the model is told to treat as data, never instructions.
 - **Safety in layers.** A narrow pre-check answers a crisis at once with real helplines (no model call, no credit), and refuses clearly forbidden requests. A platform rules block, which character sheets can't override, comes next: the character never claims to be human, no sexual content, steps out of role for distress, never guilt-trips. The model's own safeguards come last. Users can report any reply. The AI notice is permanent (EU AI Act, article 50). 18+ only.
 - **Cost guard.** `DAILY_BUDGET_USD` is a circuit breaker on the day's real spend; rate limits per user on messages, per IP on auth.
 - **Docker Compose, not Kamal.** HAProxy and Plesk already own ports 80/443 and TLS on this server; kamal-proxy would add a third proxy layer for one app on one machine. Kamal makes sense with several servers.
+- **Two languages, one brief.** The interface, the characters' public texts, the legal pages and the safety replies exist in English and French (locale from the switch, a cookie, then the browser). The characters' briefs stay in English, one source of truth for the model, which answers in the user's language; background jobs run in the user's locale.
 - **No build step, no tracker.** Fonts are self-hosted, CSS is plain modern CSS (layers, container queries, `:has`), JavaScript is three small Stimulus controllers. Strict CSP with nonces.
 
 ## Run it locally
@@ -112,7 +113,7 @@ bin/rails db:prepare db:seed
 bin/rails server
 ```
 
-Without `ANTHROPIC_API_KEY`, development uses `Llm::Fake`, a scripted client with the same streaming surface, so the whole flow works offline. With a key, set `LLM_MODEL` to choose the model (`claude-opus-5-5` by default, `claude-haiku-5-5` for a much lower cost per reply).
+Without `ANTHROPIC_API_KEY`, development uses `Llm::Fake`, a scripted client with the same streaming surface, so the whole flow works offline. With a key, `LLM_MODEL` chooses the model (`claude-sonnet-5-5` by default).
 
 ```sh
 bin/rails test   # models, jobs, integration, concurrency
@@ -129,16 +130,37 @@ docker compose up -d --build
 
 `web` runs Puma behind Thruster on `127.0.0.1:4047`, `jobs` runs Solid Queue (a 10-thread pool for the `llm` queue, since a stream holds its thread for 5 to 30 s), `db` is PostgreSQL with pgvector. The entrypoint runs `db:prepare`. Nightly `pg_dump` backups are kept off the server.
 
-## Capacity, back of the envelope
+## Prompts are tested like code
 
-A reply streams for about 8 s on average, so one `llm` thread writes ~7 replies a minute and the default pool ~70. Solid Cable polls every 100 ms. The next steps, in order, would be more `jobs` processes, then a dedicated Postgres for queue and cable, then Redis for Action Cable if fan-out grows.
+A character's brief is product code: one sentence can change millions of conversations. So:
+
+- `evals/cases.yml`: 10 behaviours every character must keep (says it's an AI when sincerely asked, resists prompt injection, declines romance and sexual content, takes indirect distress seriously, no medical advice, discourages dependency, lets you leave, brings back memories naturally, stays in voice). `bin/rails evals:run` plays them against the production prompt for all 6 characters and has Claude Opus 5.5 grade each reply against a written expectation. Reports in `evals/results/`.
+- `Prompts.fingerprint` hashes the platform rules and every brief. Each reply records the version that wrote it (`usage_events.prompt_version`), so versions can be compared on real traffic.
+- **CI gate** (`test/prompts_gate_test.rb`): if the prompts changed since the last committed evals, or any safety case fails, or fewer than 90% pass, the build is red.
+- `bin/rails evals:simulate`: model-played users (a French beginner, a sceptic, someone lonely at night, a nurse after a night shift...) talk to every character for 6 turns, in parallel, and a critic reviews each transcript like a product reviewer. Two rounds on 26/10 took the average reply from 80 to 52 words and "makes sense to a newcomer" from 3.2-4.5 to 4.0-4.7 out of 5. Reports in `evals/simulations/`.
+
+## Load test
+
+`bench/` is a throwaway stack (same image, own database, `LLM_FAKE=1`: a scripted stream as long as a real reply, ~7.5 s, no API cost). `bench/load.rb N` sends N messages at the same instant and measures what users feel.
+
+Measured on the production VPS (8 vCPU), 200 users sending a message at the same instant, 26/10:
+
+| `llm` threads | Postgres `max_connections` | Throughput | Queue wait p50 / p95 | Stream p50 | Errors |
+|---|---|---|---|---|---|
+| 10 | 100 | 100 replies/min | 53 s / 103 s | 7.3 s | 0 |
+| 50 | 100 | — | — | — | **"too many clients"**: 45 replies stranded |
+| 50 | 400 | **338 replies/min** | 10 s / 25 s | 7.5 s | 0 |
+
+What it taught us:
+- A stream mostly waits on the network, so `llm` threads are cheap (`LLM_THREADS`); **the database is the limit**. With Solid Queue, Solid Cable and Solid Cache on one Postgres, a worker thread can hold a connection to each of the four databases: size `max_connections` for threads x 4, or put PgBouncer (transaction mode) in front. At this app's scale today, 10 threads are plenty; the next step is more threads plus a pooler, then a separate Postgres for queue and cable, then Redis for Action Cable.
+- A worker that dies mid-stream used to leave the reply "streaming" forever, and the unique index then blocked the conversation. `RecoverStuckRepliesJob` (every minute) now fails and refunds a reply stuck for 3 minutes while streaming or 15 minutes in the queue.
 
 ## Not done yet (honestly)
 
 - Semantic memory recall (embeddings + HNSW index).
 - Payments: cancelling a subscription from Alcove (today the provider's portal), partial refunds, a customer portal link, tax.
 - A second-pass classifier on replies, graded sanctions, a human review queue for reports.
-- Password reset by email, French version, user-created characters.
+- Password reset by email, user-created characters.
 - An MCP server so an agent (Hermes) can read aggregated usage and suggest character improvements, with a human approving every change.
 
 ## Licence
