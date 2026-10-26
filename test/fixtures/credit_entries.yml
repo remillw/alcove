@@ -1,0 +1,10 @@
+member_grant:
+  user: member
+  amount: 5
+  kind: grant
+  idempotency_key: fixture:member
+guest_grant:
+  user: guest
+  amount: 1
+  kind: grant
+  idempotency_key: fixture:guest

@@ -1,0 +1,48 @@
+# Production on a single VPS: HAProxy (80/443) -> Plesk (TLS) -> web on 127.0.0.1:4047.
+# Secrets live in .env next to this file on the server, never in git (see .env.example).
+name: alcove
+
+x-app: &app
+  build: .
+  image: alcove:latest
+  restart: unless-stopped
+  env_file: .env
+  environment:
+    DB_HOST: db
+    DB_PORT: "5432"
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  web:
+    <<: *app
+    ports:
+      - "127.0.0.1:4047:80"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost/up"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+
+  # Solid Queue: replies (queue "llm", long-running streams) and summaries, separate from web requests
+  jobs:
+    <<: *app
+    command: ["./bin/jobs"]
+
+  db:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: alcove
+      POSTGRES_PASSWORD: ${ALCOVE_DATABASE_PASSWORD}
+      POSTGRES_DB: alcove_production
+    volumes:
+      - db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alcove"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  db:

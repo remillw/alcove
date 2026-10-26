@@ -1,0 +1,5 @@
+member_greeting:
+  conversation: member_june
+  role: assistant
+  content: Hi, I'm June.
+  status: completed

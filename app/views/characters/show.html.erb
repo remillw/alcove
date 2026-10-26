@@ -1,0 +1,47 @@
+<% content_for :title, "#{@character.name}, #{@character.role}" %>
+<% content_for :description, "#{@character.name}, #{@character.role}: #{@character.tagline}" %>
+<div class="stage">
+  <article class="dossier">
+    <div class="dossier__aside">
+      <div class="dossier__head">
+        <%= render "shared/avatar", character: @character, size: "lg" %>
+        <div>
+          <h1 class="dossier__name"><%= @character.name %></h1>
+          <p class="dossier__role"><%= @character.role %></p>
+        </div>
+      </div>
+      <% if @conversation %>
+        <%= link_to "Continue the conversation", conversation_path(@conversation), class: "btn btn--primary" %>
+      <% else %>
+        <%= form_with url: conversation_character_path(@character), class: "start" do |f| %>
+          <% unless current_user&.adult? %>
+            <label class="check">
+              <%= check_box_tag :adult, "1", false, required: true %>
+              <span>I'm 18 or older, and I understand <%= @character.first_name %> is an AI character, not a real person.</span>
+            </label>
+          <% end %>
+          <%= f.button "Start talking to #{@character.first_name}", class: "btn btn--primary" %>
+          <p class="field__hint">Your first <%= User::GUEST_CREDITS %> replies are free, no account needed.</p>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="sheet-wrap">
+      <p class="dossier__quote">“<%= @character.tagline %>”</p>
+      <dl class="sheet sheet--spaced">
+        <div>
+          <dt>Who they are</dt>
+          <dd><%= @character.persona.squish %></dd>
+        </div>
+        <div>
+          <dt>How they talk</dt>
+          <% @character.sample_lines.each do |line| %><dd><em>“<%= line %>”</em></dd><% end %>
+        </div>
+        <div>
+          <dt>What they won't do</dt>
+          <dd><%= @character.boundaries %></dd>
+        </div>
+      </dl>
+    </div>
+  </article>
+</div>

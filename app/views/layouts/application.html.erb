@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= content_for(:title).presence ? "#{yield(:title)} · Alcove" : "Alcove · Characters who remember you" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="description" content="<%= content_for(:description).presence || "Talk with original AI characters who remember you: a librarian, a cook, an astronomer, a detective, a French café owner and a companion for your day." %>">
+    <meta name="theme-color" content="#1E2423">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="/icon.png">
+    <%= stylesheet_link_tag "fonts", "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <header class="bar">
+      <a href="<%= root_path %>" aria-label="Alcove, home"><%= image_tag "logo.svg", alt: "Alcove", class: "bar__logo", width: 120, height: 34 %></a>
+      <nav class="bar__nav" aria-label="Main">
+        <% if current_user %>
+          <%= turbo_stream_from current_user %>
+          <%= link_to "Conversations", conversations_path, class: "bar__link bar__link--wide", "aria-current": (current_page?(conversations_path) ? "page" : nil) %>
+          <%= render "shared/credits", user: current_user %>
+          <% if current_user.registered? %>
+            <%= link_to "Account", account_path, class: "bar__link" %>
+          <% else %>
+            <%= link_to "Sign up", new_registration_path, class: "bar__link" %>
+          <% end %>
+        <% else %>
+          <%= link_to "Log in", new_session_path, class: "bar__link" %>
+        <% end %>
+      </nav>
+    </header>
+
+    <main id="main">
+      <% if notice %><p class="flash" role="status"><%= notice %></p><% end %>
+      <% if alert %><p class="flash flash--alert" role="alert"><%= alert %></p><% end %>
+      <%= yield %>
+    </main>
+
+    <% unless content_for?(:no_footer) %>
+      <footer class="foot">
+        <span>Alcove</span>
+        <%= link_to "Terms", terms_path %>
+        <%= link_to "Privacy", privacy_path %>
+        <%= link_to "Legal notice", legal_path %>
+        <p class="foot__note">Every character on Alcove is an AI. They can be wrong, and they can't give medical, legal or financial advice. For adults (18+).</p>
+      </footer>
+    <% end %>
+  </body>
+</html>

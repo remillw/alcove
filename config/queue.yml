@@ -1,0 +1,23 @@
+default: &default
+  dispatchers:
+    - polling_interval: 1
+      batch_size: 500
+  workers:
+    # one thread per reply being written: a stream holds its thread for 5 to 30 seconds
+    - queues: llm
+      threads: 10
+      processes: 1
+      polling_interval: 0.1
+    - queues: "*"
+      threads: 3
+      processes: 1
+      polling_interval: 1
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
