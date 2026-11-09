@@ -33,7 +33,7 @@ gem "bootsnap", require: false
 gem "thruster", require: false
 
 # Claude (Anthropic) : réponses des personnages en streaming, résumés
-gem "anthropic", "~> 2.3"
+gem "anthropic", "~> 2.6"
 # pgvector (colonne embedding des souvenirs, recherche par sens plus tard)
 gem "neighbor"
 # French dates, numbers and validation messages
