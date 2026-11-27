@@ -5,9 +5,6 @@ production:
   recover_stuck_replies:
     class: RecoverStuckRepliesJob
     schedule: every minute
-  daily_digest:
-    class: DailyDigestJob
-    schedule: every day at 9pm
   check_ledger:
     class: CheckLedgerJob
     schedule: every day at 4:30am
